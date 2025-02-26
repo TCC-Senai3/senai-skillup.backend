@@ -1,0 +1,45 @@
+package com.tcc.drakes.services;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.tcc.drakes.dtos.LoginDTO;
+import com.tcc.drakes.dtos.UsuarioDTO;
+import com.tcc.drakes.entities.Usuario;
+import com.tcc.drakes.repositories.UsuarioRepository;
+
+@Service
+public class UsuarioService {
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // Cadastro de novo usuário
+    public Usuario criarUsuario(UsuarioDTO usuarioDTO) {
+        if (usuarioRepository.findByEmail(usuarioDTO.getEmail()).isPresent()) {
+            throw new RuntimeException("Email já cadastrado.");
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setNome(usuarioDTO.getNome());
+        usuario.setEmail(usuarioDTO.getEmail());
+        usuario.setTipoUsuario(usuarioDTO.getTipoUsuario());
+        usuario.setSenha(passwordEncoder.encode(usuarioDTO.getSenha())); // Criptografando a senha
+
+        return usuarioRepository.save(usuario);
+    }
+
+    // Login de usuário
+    public Optional<Usuario> login(LoginDTO loginDTO) {
+        Optional<Usuario> usuario = usuarioRepository.findByEmail(loginDTO.getEmail());
+        if (usuario.isPresent() && passwordEncoder.matches(loginDTO.getSenha(), usuario.get().getSenha())) {
+            return usuario; 
+        }
+        return Optional.empty(); // Credenciais inválidas
+    }
+}
