@@ -20,10 +20,11 @@ public class HelloWorldController {
 	@GetMapping("/database")
     public  String database() {
         // Defina suas credenciais e a URL de conexão fornecida pelo Aiven
-        String url = "jdbc:mysql://tccsenai-osdrakedosenai.f.aivencloud.com:16812/tcc";
-        String username = "avnadmin";
-        String password = "AVNS_K_Y4nR5Y098mcXNujOn";
-
+		String url = "jdbc:mysql://tccsenai-osdrakedosenai.f.aivencloud.com:16812/tcc";
+		String username = "avnadmin";
+		String password = "AVNS_K_Y4nR5Y098mcXNujOn";
+		
+		
         // Tente se conectar ao banco de dados
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
             // Se a conexão for bem-sucedida, exibe a mensagem
