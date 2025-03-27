@@ -28,9 +28,9 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setNome(usuarioDTO.getNome());
         usuario.setEmail(usuarioDTO.getEmail());
-        usuario.setTipoUsuario(usuarioDTO.getTipoUsuario());
+       // usuario.setTipoUsuario(usuarioDTO.getTipoUsuario());
         usuario.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));// Criptografando a senha
-        usuario.setTipoUsuario(usuarioDTO.getTipoUsuario());
+      //  usuario.setTipoUsuario(usuarioDTO.getTipoUsuario());
         
         return usuarioRepository.save(usuario);
     }

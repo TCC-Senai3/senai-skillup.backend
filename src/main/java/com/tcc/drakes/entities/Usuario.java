@@ -17,16 +17,16 @@ public class Usuario {
 	private String nome;
 	private String email;
 	private String senha;
-	private TipoUsuario tipoUsuario;
+//	private TipoUsuario tipoUsuario;
 	
 	public Usuario() {}
 
-	public Usuario(long id, String nome, String email, String senha, TipoUsuario tipoUsuario) {
+	public Usuario(long id, String nome, String email, String senha) {
 		this.id = id;
 		this.nome = nome;
 		this.email = email;
 		this.senha = senha;
-		this.tipoUsuario = tipoUsuario;
+		//this.tipoUsuario = tipoUsuario;
 	}
 
 	public long getId() {
@@ -61,13 +61,13 @@ public class Usuario {
 		this.senha = senha;
 	}
 
-	public TipoUsuario getTipoUsuario() {
-		return tipoUsuario;
-	}
-
-	public void setTipoUsuario(TipoUsuario tipoUsuario) {
-		this.tipoUsuario = tipoUsuario;
-	}
+//	public TipoUsuario getTipoUsuario() {
+//		return tipoUsuario;
+//	}
+//
+//	public void setTipoUsuario(TipoUsuario tipoUsuario) {
+	//	this.tipoUsuario = tipoUsuario;
+//	}
 	
 	
 	
