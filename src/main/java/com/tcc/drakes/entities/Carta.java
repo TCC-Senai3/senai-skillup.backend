@@ -56,4 +56,10 @@ public String getDescricao() {
 public void setDescricao(String descricao) {
 	this.descricao = descricao;
 }
+
+
+public void setId_carta(Long id2) {
+	// TODO Auto-generated method stub
+	
+}
 }
