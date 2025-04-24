@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tb_carta")
+@Table(name = "carta_tb")
 public class Carta {
 
 @Id
@@ -19,6 +19,7 @@ private String tipo;
 private String efeito;
 private String custoEnergia;
 private String descricao;
+
 public Carta() {
 }
 
