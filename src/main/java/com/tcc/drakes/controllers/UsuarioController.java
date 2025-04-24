@@ -1,11 +1,14 @@
 package com.tcc.drakes.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tcc.drakes.dtos.AuthResponseDTO;
 import com.tcc.drakes.dtos.LoginDTO;
 import com.tcc.drakes.dtos.UsuarioDTO;
 import com.tcc.drakes.entities.Usuario;
@@ -25,10 +28,20 @@ public class UsuarioController {
     }
 
     // Endpoint para login
+    //@PostMapping("/login")
+  //  public String login(@RequestBody LoginDTO loginDTO) {
+       // return usuarioService.login(loginDTO)
+        //        .map(usuario -> "Login realizado com sucesso!")
+        //        .orElse("Credenciais inválidas");
+   // }
+    
     @PostMapping("/login")
-    public String login(@RequestBody LoginDTO loginDTO) {
-        return usuarioService.login(loginDTO)
-                .map(usuario -> "Login realizado com sucesso!")
-                .orElse("Credenciais inválidas");
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
+        try {
+            String token = usuarioService.loginComJwt(loginDTO);
+            return ResponseEntity.ok().body(new AuthResponseDTO(token));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+        }
     }
 }

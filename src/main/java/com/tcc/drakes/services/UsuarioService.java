@@ -10,6 +10,7 @@ import com.tcc.drakes.dtos.LoginDTO;
 import com.tcc.drakes.dtos.UsuarioDTO;
 import com.tcc.drakes.entities.Usuario;
 import com.tcc.drakes.repositories.UsuarioRepository;
+import com.tcc.drakes.security.JwtUtil;
 
 @Service
 public class UsuarioService {
@@ -34,13 +35,24 @@ public class UsuarioService {
         
         return usuarioRepository.save(usuario);
     }
-
-    // Login de usuário
-    public Optional<Usuario> login(LoginDTO loginDTO) {
+    
+    @Autowired
+    private JwtUtil jwtUtil;
+// login com jwt
+    public String loginComJwt(LoginDTO loginDTO) {
         Optional<Usuario> usuario = usuarioRepository.findByEmail(loginDTO.getEmail());
         if (usuario.isPresent() && passwordEncoder.matches(loginDTO.getSenha(), usuario.get().getSenha())) {
-            return usuario; 
+            return jwtUtil.generateToken(usuario.get().getEmail());
         }
-        return Optional.empty(); // Credenciais inválidas
+        throw new RuntimeException("Credenciais inválidas");
     }
+
+    // Login de usuário
+  //  public Optional<Usuario> login(LoginDTO loginDTO) {
+    //    Optional<Usuario> usuario = usuarioRepository.findByEmail(loginDTO.getEmail());
+    //    if (usuario.isPresent() && passwordEncoder.matches(loginDTO.getSenha(), usuario.get().getSenha())) {
+    //        return usuario; 
+    //    }
+   //     return Optional.empty(); // Credenciais inválidas
+ //   }
 }
