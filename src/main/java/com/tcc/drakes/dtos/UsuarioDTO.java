@@ -6,10 +6,21 @@ public class UsuarioDTO {
 	private String nome;
 	private String email;
 	private String senha;
+	private String biografia;
 	//private TipoUsuario tipoUsuario;
+	
+	
 
 	public String getNome() {
 		return nome;
+	}
+
+	public String getBiografia() {
+		return biografia;
+	}
+
+	public void setBiografia(String biografia) {
+		this.biografia = biografia;
 	}
 
 	public void setNome(String nome) {

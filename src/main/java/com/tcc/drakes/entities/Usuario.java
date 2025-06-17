@@ -17,20 +17,30 @@ public class Usuario {
 	private String nome;
 	private String email;
 	private String senha;
+	private String biografia;
 //	private TipoUsuario tipoUsuario;
 	
 	public Usuario() {}
 
-	public Usuario(long id, String nome, String email, String senha) {
+	public Usuario(long id, String nome, String email, String senha, String biografia) {
 		this.id = id;
 		this.nome = nome;
 		this.email = email;
 		this.senha = senha;
+		this.biografia = biografia;
 		//this.tipoUsuario = tipoUsuario;
 	}
 
 	public long getId() {
 		return id;
+	}
+
+	public String getBiografia() {
+		return biografia;
+	}
+
+	public void setBiografia(String biografia) {
+		this.biografia = biografia;
 	}
 
 	public void setId(long id) {
