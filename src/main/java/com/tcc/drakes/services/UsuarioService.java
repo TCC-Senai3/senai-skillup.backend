@@ -56,4 +56,16 @@ public class UsuarioService {
     //    }
    //     return Optional.empty(); // Credenciais inválidas
  //   }
+    
+    public Usuario atualizarBiografia(Long id, String novaBiografia) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+
+        if (usuarioOptional.isPresent()) {
+            Usuario usuario = usuarioOptional.get();
+            usuario.setBiografia(novaBiografia);
+            return usuarioRepository.save(usuario);
+        } else {
+            throw new RuntimeException("Usuário não encontrado com o ID: " + id);
+        }
+    }
 }
