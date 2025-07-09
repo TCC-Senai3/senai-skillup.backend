@@ -12,41 +12,40 @@ public class Pergunta {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long idPergunta;
 	
+	private Long idAlternativa;
 	private String textoPergunta;
 	
-	private String alternativaA;
-	private String alternativaB;
-	private String alternativaC;
-	private String alternativaD;
+	boolean respostaCorreta;
 	
-	private String respostaCorreta;
+	private Long idTema;
 	
-	
-	
-	
-
-	public Pergunta(long id, String textoPergunta, String alternativaA, String alternativaB, String alternativaC,
-			String alternativaD, String respostaCorreta) {
-		this.id = id;
-		this.textoPergunta = textoPergunta;
-		this.alternativaA = alternativaA;
-		this.alternativaB = alternativaB;
-		this.alternativaC = alternativaC;
-		this.alternativaD = alternativaD;
-		this.respostaCorreta = respostaCorreta;
-	}
-
 	public Pergunta() {
 	}
 
-	public long getId() {
-		return id;
+	public Pergunta(Long idPergunta, Long idAlternativa, String textoPergunta, boolean respostaCorreta, Long idTema) {
+		this.idPergunta = idPergunta;
+		this.idAlternativa = idAlternativa;
+		this.textoPergunta = textoPergunta;
+		this.respostaCorreta = respostaCorreta;
+		this.idTema = idTema;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public Long getIdPergunta() {
+		return idPergunta;
+	}
+
+	public void setIdPergunta(Long idPergunta) {
+		this.idPergunta = idPergunta;
+	}
+
+	public Long getIdAlternativa() {
+		return idAlternativa;
+	}
+
+	public void setIdAlternativa(Long idAlternativa) {
+		this.idAlternativa = idAlternativa;
 	}
 
 	public String getTextoPergunta() {
@@ -57,45 +56,24 @@ public class Pergunta {
 		this.textoPergunta = textoPergunta;
 	}
 
-	public String getAlternativaA() {
-		return alternativaA;
-	}
-
-	public void setAlternativaA(String alternativaA) {
-		this.alternativaA = alternativaA;
-	}
-
-	public String getAlternativaB() {
-		return alternativaB;
-	}
-
-	public void setAlternativaB(String alternativaB) {
-		this.alternativaB = alternativaB;
-	}
-
-	public String getAlternativaC() {
-		return alternativaC;
-	}
-
-	public void setAlternativaC(String alternativaC) {
-		this.alternativaC = alternativaC;
-	}
-
-	public String getAlternativaD() {
-		return alternativaD;
-	}
-
-	public void setAlternativaD(String alternativaD) {
-		this.alternativaD = alternativaD;
-	}
-
-	public String getRespostaCorreta() {
+	public boolean isRespostaCorreta() {
 		return respostaCorreta;
 	}
 
-	public void setRespostaCorreta(String respostaCorreta) {
+	public void setRespostaCorreta(boolean respostaCorreta) {
 		this.respostaCorreta = respostaCorreta;
 	}
+
+	public Long getIdTema() {
+		return idTema;
+	}
+
+	public void setIdTema(Long idTema) {
+		this.idTema = idTema;
+	}
+	
+	
+	
 	
 	
 }
