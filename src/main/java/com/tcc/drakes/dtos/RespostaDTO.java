@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 
 public class RespostaDTO {
 	
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idResposta;
 	
 	private Long idUsuario;
