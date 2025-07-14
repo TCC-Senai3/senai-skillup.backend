@@ -7,8 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 public class TemaDTO {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	
 	private Long idTema;
 	
 	private Long idPergunta;
