@@ -1,39 +1,43 @@
 package com.tcc.drakes.dtos;
 
 import com.tcc.drakes.entities.Pergunta;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class PerguntaDTO{
 
 	private Long idPergunta;
-	
-	private Long idAlternativa;
 	private String textoPergunta;
 	
-	boolean respostaCorreta;
+	// Referência ao DTO do Tema, pois uma Pergunta pertence a um Tema
+	private TemaDTO tema; // Pode ser apenas private Long idTema; se você não precisar dos detalhes completos do tema
 	
-	private Long idTema;
-	
+	// Lista de AlternativaDTOs para representar as alternativas associadas a esta pergunta
+	private List<AlternativaDTO> alternativas;
 	
 	public PerguntaDTO(Pergunta entity) {
-		idPergunta = entity.getIdPergunta();
-		idAlternativa = entity.getIdAlternativa();
-		textoPergunta = entity.getTextoPergunta();
-		respostaCorreta = entity.isRespostaCorreta();
-		idTema = entity.getIdTema();
+		this.idPergunta = entity.getIdPergunta();
+		this.textoPergunta = entity.getTextoPergunta();
+		// Mapeia o Tema associado para um TemaDTO. Cuidado com ciclos infinitos se TemaDTO também tiver Perguntas.
+		// Para evitar isso, TemaDTO para PerguntaDTO pode ser apenas o ID do Tema, ou um construtor de TemaDTO que não carrega Perguntas.
+		// Neste exemplo, vou carregar o TemaDTO completo, mas em casos de recursão, você pode usar um TemaSemPerguntasDTO ou apenas o ID.
+		if (entity.getTema() != null) {
+			// Cria um TemaDTO sem as perguntas para evitar recursão infinita
+			this.tema = new TemaDTO(entity.getTema().getIdTema(), entity.getTema().getNomeTema(), null); 
+		}
+		
+		// Mapeia a lista de entidades Alternativa para uma lista de AlternativaDTOs
+		if (entity.getAlternativas() != null) {
+			this.alternativas = entity.getAlternativas().stream().map(AlternativaDTO::new).collect(Collectors.toList());
+		}
 	}
 	
-
-	public PerguntaDTO(Long idPergunta, Long idAlternativa, String textoPergunta, boolean respostaCorreta,
-			Long idTema) {
+	// Construtor completo ajustado
+	public PerguntaDTO(Long idPergunta, String textoPergunta, TemaDTO tema, List<AlternativaDTO> alternativas) {
 		this.idPergunta = idPergunta;
-		this.idAlternativa = idAlternativa;
 		this.textoPergunta = textoPergunta;
-		this.respostaCorreta = respostaCorreta;
-		this.idTema = idTema;
+		this.tema = tema;
+		this.alternativas = alternativas;
 	}
 
 	public PerguntaDTO() {
@@ -47,14 +51,6 @@ public class PerguntaDTO{
 		this.idPergunta = idPergunta;
 	}
 
-	public Long getIdAlternativa() {
-		return idAlternativa;
-	}
-
-	public void setIdAlternativa(Long idAlternativa) {
-		this.idAlternativa = idAlternativa;
-	}
-
 	public String getTextoPergunta() {
 		return textoPergunta;
 	}
@@ -63,22 +59,19 @@ public class PerguntaDTO{
 		this.textoPergunta = textoPergunta;
 	}
 
-	public boolean isRespostaCorreta() {
-		return respostaCorreta;
+	public TemaDTO getTema() {
+		return tema;
 	}
 
-	public void setRespostaCorreta(boolean respostaCorreta) {
-		this.respostaCorreta = respostaCorreta;
+	public void setTema(TemaDTO tema) {
+		this.tema = tema;
 	}
 
-	public Long getIdTema() {
-		return idTema;
+	public List<AlternativaDTO> getAlternativas() {
+		return alternativas;
 	}
 
-	public void setIdTema(Long idTema) {
-		this.idTema = idTema;
+	public void setAlternativas(List<AlternativaDTO> alternativas) {
+		this.alternativas = alternativas;
 	}
-	
-	
-	
 }

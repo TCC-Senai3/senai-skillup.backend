@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -14,31 +16,24 @@ public class Alternativa {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idAlternativa;
 	
-	private Long idPergunta;
-	private String alternativaA;
-	private String alternativaB;
-	private String alternativaC;
-	private String alternativaD;
+	// Muitas Alternativas pertencem a uma Pergunta (ManyToOne)
+	@ManyToOne
+	@JoinColumn(name = "pergunta_id") // Nome da coluna da chave estrangeira na tabela Alternativa
+	private Pergunta pergunta;
 	
-	boolean correta;
+	private String textoAlternativa; // Uma única alternativa com seu texto
 	
-	private String alternativaSelecionada;
-	
-	
-
-	public Alternativa(Long idAlternativa, Long idPergunta, String alternativaA, String alternativaB,
-			String alternativaC, String alternativaD, boolean correta, String alternativaSelecionada) {
-		this.idAlternativa = idAlternativa;
-		this.idPergunta = idPergunta;
-		this.alternativaA = alternativaA;
-		this.alternativaB = alternativaB;
-		this.alternativaC = alternativaC;
-		this.alternativaD = alternativaD;
-		this.correta = correta;
-		this.alternativaSelecionada = alternativaSelecionada;
-	}
+	private boolean correta; // Indica se esta alternativa é a resposta correta para a pergunta
 
 	public Alternativa() {
+	}
+
+	// Construtor ajustado
+	public Alternativa(Long idAlternativa, Pergunta pergunta, String textoAlternativa, boolean correta) {
+		this.idAlternativa = idAlternativa;
+		this.pergunta = pergunta;
+		this.textoAlternativa = textoAlternativa;
+		this.correta = correta;
 	}
 
 	public Long getIdAlternativa() {
@@ -49,44 +44,20 @@ public class Alternativa {
 		this.idAlternativa = idAlternativa;
 	}
 
-	public Long getIdPergunta() {
-		return idPergunta;
+	public Pergunta getPergunta() {
+		return pergunta;
 	}
 
-	public void setIdPergunta(Long idPergunta) {
-		this.idPergunta = idPergunta;
+	public void setPergunta(Pergunta pergunta) {
+		this.pergunta = pergunta;
 	}
 
-	public String getAlternativaA() {
-		return alternativaA;
+	public String getTextoAlternativa() {
+		return textoAlternativa;
 	}
 
-	public void setAlternativaA(String alternativaA) {
-		this.alternativaA = alternativaA;
-	}
-
-	public String getAlternativaB() {
-		return alternativaB;
-	}
-
-	public void setAlternativaB(String alternativaB) {
-		this.alternativaB = alternativaB;
-	}
-
-	public String getAlternativaC() {
-		return alternativaC;
-	}
-
-	public void setAlternativaC(String alternativaC) {
-		this.alternativaC = alternativaC;
-	}
-
-	public String getAlternativaD() {
-		return alternativaD;
-	}
-
-	public void setAlternativaD(String alternativaD) {
-		this.alternativaD = alternativaD;
+	public void setTextoAlternativa(String textoAlternativa) {
+		this.textoAlternativa = textoAlternativa;
 	}
 
 	public boolean isCorreta() {
@@ -96,15 +67,4 @@ public class Alternativa {
 	public void setCorreta(boolean correta) {
 		this.correta = correta;
 	}
-
-	public String getAlternativaSelecionada() {
-		return alternativaSelecionada;
-	}
-
-	public void setAlternativaSelecionada(String alternativaSelecionada) {
-		this.alternativaSelecionada = alternativaSelecionada;
-	}
-	
-	
-
 }

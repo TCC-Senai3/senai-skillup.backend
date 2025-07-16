@@ -2,45 +2,32 @@ package com.tcc.drakes.dtos;
 
 import com.tcc.drakes.entities.Alternativa;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
 public class AlternativaDTO {
 	
 	private Long idAlternativa;
 	
-	private Long idPergunta;
-	private String alternativaA;
-	private String alternativaB;
-	private String alternativaC;
-	private String alternativaD;
+	// Referência ao DTO da Pergunta (ou apenas o ID, dependendo da sua necessidade)
+	private Long idPergunta; // Para este DTO, o ID da Pergunta é suficiente, evitando carregamento excessivo
+	// private PerguntaDTO pergunta; // Poderia ser assim se você precisasse dos detalhes da pergunta na alternativa
 	
-	boolean correta;
-	
-	private String alternativaSelecionada;
+	private String textoAlternativa; // Uma única alternativa com seu texto
+	private boolean correta; // Indica se esta alternativa é a resposta correta para a pergunta
 	
 	public AlternativaDTO(Alternativa entity) {
-		idAlternativa = entity.getIdAlternativa();
-		idPergunta = entity.getIdPergunta();
-		alternativaA = entity.getAlternativaA();
-		alternativaB = entity.getAlternativaB();
-		alternativaC = entity.getAlternativaC();
-		alternativaD = entity.getAlternativaD();
-		correta = entity.isCorreta();
-		alternativaSelecionada = entity.getAlternativaSelecionada();
+		this.idAlternativa = entity.getIdAlternativa();
+		if (entity.getPergunta() != null) {
+			this.idPergunta = entity.getPergunta().getIdPergunta();
+		}
+		this.textoAlternativa = entity.getTextoAlternativa();
+		this.correta = entity.isCorreta();
 	}
 
-	public AlternativaDTO(Long idAlternativa, Long idPergunta, String alternativaA, String alternativaB,
-			String alternativaC, String alternativaD, boolean correta, String alternativaSelecionada) {
+	// Construtor completo ajustado
+	public AlternativaDTO(Long idAlternativa, Long idPergunta, String textoAlternativa, boolean correta) {
 		this.idAlternativa = idAlternativa;
 		this.idPergunta = idPergunta;
-		this.alternativaA = alternativaA;
-		this.alternativaB = alternativaB;
-		this.alternativaC = alternativaC;
-		this.alternativaD = alternativaD;
+		this.textoAlternativa = textoAlternativa;
 		this.correta = correta;
-		this.alternativaSelecionada = alternativaSelecionada;
 	}
 
 	public AlternativaDTO() {
@@ -62,36 +49,12 @@ public class AlternativaDTO {
 		this.idPergunta = idPergunta;
 	}
 
-	public String getAlternativaA() {
-		return alternativaA;
+	public String getTextoAlternativa() {
+		return textoAlternativa;
 	}
 
-	public void setAlternativaA(String alternativaA) {
-		this.alternativaA = alternativaA;
-	}
-
-	public String getAlternativaB() {
-		return alternativaB;
-	}
-
-	public void setAlternativaB(String alternativaB) {
-		this.alternativaB = alternativaB;
-	}
-
-	public String getAlternativaC() {
-		return alternativaC;
-	}
-
-	public void setAlternativaC(String alternativaC) {
-		this.alternativaC = alternativaC;
-	}
-
-	public String getAlternativaD() {
-		return alternativaD;
-	}
-
-	public void setAlternativaD(String alternativaD) {
-		this.alternativaD = alternativaD;
+	public void setTextoAlternativa(String textoAlternativa) {
+		this.textoAlternativa = textoAlternativa;
 	}
 
 	public boolean isCorreta() {
@@ -101,13 +64,4 @@ public class AlternativaDTO {
 	public void setCorreta(boolean correta) {
 		this.correta = correta;
 	}
-
-	public String getAlternativaSelecionada() {
-		return alternativaSelecionada;
-	}
-
-	public void setAlternativaSelecionada(String alternativaSelecionada) {
-		this.alternativaSelecionada = alternativaSelecionada;
-	}
-	
 }

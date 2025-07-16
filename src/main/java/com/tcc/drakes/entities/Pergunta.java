@@ -1,35 +1,44 @@
 package com.tcc.drakes.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name= "pergunta_tb")
+@Table(name= "tb_pergunta") // Mudei o nome da tabela para seguir um padrão mais comum (tb_pergunta)
 public class Pergunta {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idPergunta;
 	
-	private Long idAlternativa;
 	private String textoPergunta;
 	
-	boolean respostaCorreta;
+	// Muitas Perguntas pertencem a um Tema (ManyToOne)
+	@ManyToOne
+	@JoinColumn(name = "tema_id") // Nome da coluna da chave estrangeira na tabela Pergunta
+	private Tema tema;
 	
-	private Long idTema;
-	
+	// Uma Pergunta pode ter muitas Alternativas (OneToMany)
+	@OneToMany(mappedBy = "pergunta", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+	private List<Alternativa> alternativas = new ArrayList<>();
+
 	public Pergunta() {
 	}
 
-	public Pergunta(Long idPergunta, Long idAlternativa, String textoPergunta, boolean respostaCorreta, Long idTema) {
+	// Construtor ajustado
+	public Pergunta(Long idPergunta, String textoPergunta, Tema tema) {
 		this.idPergunta = idPergunta;
-		this.idAlternativa = idAlternativa;
 		this.textoPergunta = textoPergunta;
-		this.respostaCorreta = respostaCorreta;
-		this.idTema = idTema;
+		this.tema = tema;
 	}
 
 	public Long getIdPergunta() {
@@ -40,14 +49,6 @@ public class Pergunta {
 		this.idPergunta = idPergunta;
 	}
 
-	public Long getIdAlternativa() {
-		return idAlternativa;
-	}
-
-	public void setIdAlternativa(Long idAlternativa) {
-		this.idAlternativa = idAlternativa;
-	}
-
 	public String getTextoPergunta() {
 		return textoPergunta;
 	}
@@ -56,24 +57,30 @@ public class Pergunta {
 		this.textoPergunta = textoPergunta;
 	}
 
-	public boolean isRespostaCorreta() {
-		return respostaCorreta;
+	public Tema getTema() {
+		return tema;
 	}
 
-	public void setRespostaCorreta(boolean respostaCorreta) {
-		this.respostaCorreta = respostaCorreta;
+	public void setTema(Tema tema) {
+		this.tema = tema;
 	}
 
-	public Long getIdTema() {
-		return idTema;
+	public List<Alternativa> getAlternativas() {
+		return alternativas;
 	}
 
-	public void setIdTema(Long idTema) {
-		this.idTema = idTema;
+	public void setAlternativas(List<Alternativa> alternativas) {
+		this.alternativas = alternativas;
 	}
 	
-	
-	
-	
-	
+	// Métodos auxiliares para adicionar/remover alternativas
+	public void addAlternativa(Alternativa alternativa) {
+		this.alternativas.add(alternativa);
+		alternativa.setPergunta(this);
+	}
+
+	public void removeAlternativa(Alternativa alternativa) {
+		this.alternativas.remove(alternativa);
+		alternativa.setPergunta(null);
+	}
 }

@@ -1,29 +1,32 @@
 package com.tcc.drakes.dtos;
 
 import com.tcc.drakes.entities.Tema;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TemaDTO {
 	
 	private Long idTema;
-	
-	private Long idPergunta;
-	
 	private String nomeTema;
 	
+	// Adicionamos uma lista de PerguntaDTOs para representar as perguntas associadas a este tema
+	private List<PerguntaDTO> perguntas; 
+	
 	public TemaDTO(Tema entity) {
-		idTema = entity.getIdTema();
-		idPergunta = entity.getIdPergunta();
-		nomeTema = entity.getNomeTema();
+		this.idTema = entity.getIdTema();
+		this.nomeTema = entity.getNomeTema();
+		// Mapeia a lista de entidades Pergunta para uma lista de PerguntaDTOs
+		// Se as perguntas não precisarem ser carregadas sempre, considere usar um construtor ou método para popular esta lista sob demanda (lazy loading)
+		if (entity.getPerguntas() != null) {
+			this.perguntas = entity.getPerguntas().stream().map(PerguntaDTO::new).collect(Collectors.toList());
+		}
 	}
 
-	public TemaDTO(Long idTema, Long idPergunta, String nomeTema) {
+	// Construtor completo ajustado para incluir a lista de perguntas DTO
+	public TemaDTO(Long idTema, String nomeTema, List<PerguntaDTO> perguntas) {
 		this.idTema = idTema;
-		this.idPergunta = idPergunta;
 		this.nomeTema = nomeTema;
+		this.perguntas = perguntas;
 	}
 
 	public TemaDTO() {
@@ -37,14 +40,6 @@ public class TemaDTO {
 		this.idTema = idTema;
 	}
 
-	public Long getIdPergunta() {
-		return idPergunta;
-	}
-
-	public void setIdPergunta(Long idPergunta) {
-		this.idPergunta = idPergunta;
-	}
-
 	public String getNomeTema() {
 		return nomeTema;
 	}
@@ -52,8 +47,12 @@ public class TemaDTO {
 	public void setNomeTema(String nomeTema) {
 		this.nomeTema = nomeTema;
 	}
-	
-	
-	
 
+	public List<PerguntaDTO> getPerguntas() {
+		return perguntas;
+	}
+
+	public void setPerguntas(List<PerguntaDTO> perguntas) {
+		this.perguntas = perguntas;
+	}
 }
