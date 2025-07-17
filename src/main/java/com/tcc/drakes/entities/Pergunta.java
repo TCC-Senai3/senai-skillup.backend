@@ -13,7 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name= "tb_pergunta") // Mudei o nome da tabela para seguir um padrão mais comum (tb_pergunta)
+@Table(name= "tb_pergunta")
 public class Pergunta {
 	
 	@Id
@@ -27,6 +27,12 @@ public class Pergunta {
 	@JoinColumn(name = "tema_id") // Nome da coluna da chave estrangeira na tabela Pergunta
 	private Tema tema;
 	
+	// Adicionamos a relação ManyToOne com Formulário
+	// Muitas Perguntas podem estar em um Formulário (ManyToOne)
+	@ManyToOne
+	@JoinColumn(name = "formulario_id") // Nome da coluna da chave estrangeira na tabela Pergunta
+	private Formulario formulario; // Novo atributo para a relação com Formulário
+	
 	// Uma Pergunta pode ter muitas Alternativas (OneToMany)
 	@OneToMany(mappedBy = "pergunta", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
 	private List<Alternativa> alternativas = new ArrayList<>();
@@ -34,11 +40,12 @@ public class Pergunta {
 	public Pergunta() {
 	}
 
-	// Construtor ajustado
-	public Pergunta(Long idPergunta, String textoPergunta, Tema tema) {
+	// Construtor ajustado para incluir Formulário
+	public Pergunta(Long idPergunta, String textoPergunta, Tema tema, Formulario formulario) {
 		this.idPergunta = idPergunta;
 		this.textoPergunta = textoPergunta;
 		this.tema = tema;
+		this.formulario = formulario; // Adicionado Formulário ao construtor
 	}
 
 	public Long getIdPergunta() {
@@ -63,6 +70,14 @@ public class Pergunta {
 
 	public void setTema(Tema tema) {
 		this.tema = tema;
+	}
+
+	public Formulario getFormulario() { // Novo getter
+		return formulario;
+	}
+
+	public void setFormulario(Formulario formulario) { // Novo setter
+		this.formulario = formulario;
 	}
 
 	public List<Alternativa> getAlternativas() {
