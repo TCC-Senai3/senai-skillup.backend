@@ -36,6 +36,9 @@ public class Pergunta {
 	// Uma Pergunta pode ter muitas Alternativas (OneToMany)
 	@OneToMany(mappedBy = "pergunta", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
 	private List<Alternativa> alternativas = new ArrayList<>();
+	
+	  @OneToMany(mappedBy = "pergunta")
+	    private List<Resposta> respostas;
 
 	public Pergunta() {
 	}

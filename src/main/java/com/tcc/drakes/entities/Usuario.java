@@ -1,9 +1,12 @@
 package com.tcc.drakes.entities;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -30,6 +33,9 @@ public class Usuario {
 		this.biografia = biografia;
 		//this.tipoUsuario = tipoUsuario;
 	}
+	
+	 @OneToMany(mappedBy = "usuario")
+	    private List<Resposta> respostas;
 
 	public long getId() {
 		return id;
@@ -69,6 +75,14 @@ public class Usuario {
 
 	public void setSenha(String senha) {
 		this.senha = senha;
+	}
+
+	public List<Resposta> getRespostas() {
+		return respostas;
+	}
+
+	public void setRespostas(List<Resposta> respostas) {
+		this.respostas = respostas;
 	}
 
 //	public TipoUsuario getTipoUsuario() {
