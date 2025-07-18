@@ -22,16 +22,18 @@ public class Usuario {
 	private String senha;
 	private String biografia;
 //	private TipoUsuario tipoUsuario;
+	 private int pontuacao = 0;
 	
 	public Usuario() {}
 
-	public Usuario(long id, String nome, String email, String senha, String biografia) {
+	public Usuario(long id, String nome, String email, String senha, String biografia, int pontuacao) {
 		this.id = id;
 		this.nome = nome;
 		this.email = email;
 		this.senha = senha;
 		this.biografia = biografia;
 		//this.tipoUsuario = tipoUsuario;
+		this.pontuacao = pontuacao;
 	}
 	
 	 @OneToMany(mappedBy = "usuario")
@@ -39,6 +41,14 @@ public class Usuario {
 
 	public long getId() {
 		return id;
+	}
+
+	public int getPontuacao() {
+		return pontuacao;
+	}
+
+	public void setPontuacao(int pontuacao) {
+		this.pontuacao = pontuacao;
 	}
 
 	public String getBiografia() {
@@ -95,7 +105,10 @@ public class Usuario {
 	
 	
 	
-	
+
+    public void incrementarPontuacao() {
+        this.pontuacao += 1;
+    }
 	
 
 }

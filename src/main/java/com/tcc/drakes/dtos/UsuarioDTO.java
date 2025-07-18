@@ -9,7 +9,16 @@ public class UsuarioDTO {
 	private String biografia;
 	//private TipoUsuario tipoUsuario;
 	
+	private int pontuacao;
 	
+
+	public int getPontuacao() {
+		return pontuacao;
+	}
+
+	public void setPontuacao(int pontuacao) {
+		this.pontuacao = pontuacao;
+	}
 
 	public String getNome() {
 		return nome;

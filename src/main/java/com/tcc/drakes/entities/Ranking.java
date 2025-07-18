@@ -1,79 +1,79 @@
 package com.tcc.drakes.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name= "tb_ranking")
+@Table(name = "tb_ranking")
 public class Ranking {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long idRanking;
-	
-	private Long idUsuario;
-	
-	private Long idSala;
-	
-	private Long pontuacao;
-	
-	private String ultimaAtualização;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idRanking;
 
-	public Ranking() {
-	}
+    @ManyToOne
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario;
 
-	public Ranking(Long idRanking, Long idUsuario, Long idSala, Long pontuacao, String ultimaAtualização) {
-		this.idRanking = idRanking;
-		this.idUsuario = idUsuario;
-		this.idSala = idSala;
-		this.pontuacao = pontuacao;
-		this.ultimaAtualização = ultimaAtualização;
-	}
+    @ManyToOne
+    @JoinColumn(name = "id_sala", nullable = false)
+    private Sala sala;
 
-	public Long getIdRanking() {
-		return idRanking;
-	}
+    private Long pontuacao = 0L;
 
-	public void setIdRanking(Long idRanking) {
-		this.idRanking = idRanking;
-	}
 
-	public Long getIdUsuario() {
-		return idUsuario;
-	}
+    public Ranking() {
+    }
 
-	public void setIdUsuario(Long idUsuario) {
-		this.idUsuario = idUsuario;
-	}
+    public Ranking(Usuario usuario, Sala sala) {
+        this.usuario = usuario;
+        this.sala = sala;
+        this.pontuacao = 0L;
+    }
 
-	public Long getIdSala() {
-		return idSala;
-	}
+    
+    
+    // Getters e setters
 
-	public void setIdSala(Long idSala) {
-		this.idSala = idSala;
-	}
+    public Long getIdRanking() {
+        return idRanking;
+    }
 
-	public Long getPontuacao() {
-		return pontuacao;
-	}
+    public void setIdRanking(Long idRanking) {
+        this.idRanking = idRanking;
+    }
 
-	public void setPontuacao(Long pontuacao) {
-		this.pontuacao = pontuacao;
-	}
+    public Usuario getUsuario() {
+        return usuario;
+    }
 
-	public String getUltimaAtualização() {
-		return ultimaAtualização;
-	}
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 
-	public void setUltimaAtualização(String ultimaAtualização) {
-		this.ultimaAtualização = ultimaAtualização;
-	}
-	
-	
-	
+    public Sala getSala() {
+        return sala;
+    }
+
+    public void setSala(Sala sala) {
+        this.sala = sala;
+    }
+
+    public Long getPontuacao() {
+        return pontuacao;
+    }
+
+    public void setPontuacao(Long pontuacao) {
+        this.pontuacao = pontuacao;
+    }
+
+   
+
+    // Método utilitário para incrementar pontuação
+    public void incrementarPontuacao() {
+        this.pontuacao++;
+       
+    }
+
 	
 }

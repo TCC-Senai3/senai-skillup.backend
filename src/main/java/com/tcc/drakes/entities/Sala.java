@@ -1,94 +1,92 @@
 package com.tcc.drakes.entities;
 
+
+import java.time.LocalDate;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name= "tb_sala")
+@Table(name = "tb_sala")
 public class Sala {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long idSala;
-	
-	private Long idUsuario;
-	
-	private Long idTema;
-	
-	private String nomeSala;
-	
-	private Long localDate;
-	
-	StatusSala statusSala;
-	
 
-	public Sala() {
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idSala;
 
-	
-	
-	public Sala(Long idSala, Long idUsuario, Long idTema, String nomeSala, Long localDate, StatusSala statusSala) {
-		this.idSala = idSala;
-		this.idUsuario = idUsuario;
-		this.idTema = idTema;
-		this.nomeSala = nomeSala;
-		this.localDate = localDate;
-		this.statusSala = statusSala;
-	}
+    private Long idUsuario;
 
+    private Long idTema;
 
+    private String nomeSala;
 
-	public Long getIdSala() {
-		return idSala;
-	}
+    private LocalDate dataCriacao;
 
-	public void setIdSala(Long idSala) {
-		this.idSala = idSala;
-	}
+    @Enumerated(EnumType.STRING)
+    private StatusSala statusSala;
 
-	public Long getIdUsuario() {
-		return idUsuario;
-	}
+    public Sala() {
+    }
 
-	public void setIdUsuario(Long idUsuario) {
-		this.idUsuario = idUsuario;
-	}
+    public Sala(Long idSala, Long idUsuario, Long idTema, String nomeSala, LocalDate dataCriacao, StatusSala statusSala) {
+        this.idSala = idSala;
+        this.idUsuario = idUsuario;
+        this.idTema = idTema;
+        this.nomeSala = nomeSala;
+        this.dataCriacao = dataCriacao;
+        this.statusSala = statusSala;
+    }
 
-	public Long getIdTema() {
-		return idTema;
-	}
+    public Long getIdSala() {
+        return idSala;
+    }
 
-	public void setIdTema(Long idTema) {
-		this.idTema = idTema;
-	}
+    public void setIdSala(Long idSala) {
+        this.idSala = idSala;
+    }
 
-	public String getNomeSala() {
-		return nomeSala;
-	}
+    public Long getIdUsuario() {
+        return idUsuario;
+    }
 
-	public void setNomeSala(String nomeSala) {
-		this.nomeSala = nomeSala;
-	}
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
+    }
 
-	public Long getLocalDate() {
-		return localDate;
-	}
+    public Long getIdTema() {
+        return idTema;
+    }
 
-	public void setLocalDate(Long localDate) {
-		this.localDate = localDate;
-	}
+    public void setIdTema(Long idTema) {
+        this.idTema = idTema;
+    }
 
-	public StatusSala getStatusSala() {
-		return statusSala;
-	}
+    public String getNomeSala() {
+        return nomeSala;
+    }
 
-	public void setStatusSala(StatusSala statusSala) {
-		this.statusSala = statusSala;
-	}
-	
-	
+    public void setNomeSala(String nomeSala) {
+        this.nomeSala = nomeSala;
+    }
 
+    public LocalDate getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(LocalDate dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
+
+    public StatusSala getStatusSala() {
+        return statusSala;
+    }
+
+    public void setStatusSala(StatusSala statusSala) {
+        this.statusSala = statusSala;
+    }
 }
