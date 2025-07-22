@@ -42,7 +42,17 @@ public class SalaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-    	salaService.delete(id);
+        salaService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ✅ NOVO ENDPOINT: Usuário entra em uma sala
+    @PostMapping("/{idSala}/entrar/{idUsuario}")
+    public ResponseEntity<String> entrarNaSala(
+            @PathVariable Long idSala,
+            @PathVariable Long idUsuario) {
+
+        String mensagem = salaService.entrarNaSala(idSala, idUsuario);
+        return ResponseEntity.ok(mensagem);
     }
 }
