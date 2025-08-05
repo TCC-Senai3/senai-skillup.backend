@@ -26,7 +26,7 @@ public class SalaService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private FormularioRepository formularioRepository; // ✅ Novo
+    private FormularioRepository formularioRepository; 
 
     public List<SalaDTO> findAll() {
         List<Sala> salas = repository.findAll();

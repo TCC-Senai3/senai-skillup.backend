@@ -27,8 +27,6 @@ public class Pergunta {
 	@JoinColumn(name = "tema_id") // Nome da coluna da chave estrangeira na tabela Pergunta
 	private Tema tema;
 	
-	// Adicionamos a relação ManyToOne com Formulário
-	// Muitas Perguntas podem estar em um Formulário (ManyToOne)
 	@ManyToOne
 	@JoinColumn(name = "formulario_id") // Nome da coluna da chave estrangeira na tabela Pergunta
 	private Formulario formulario; // Novo atributo para a relação com Formulário
