@@ -11,6 +11,7 @@ import com.tcc.drakes.entities.Resposta;
 import com.tcc.drakes.repositories.AlternativaRepository;
 import com.tcc.drakes.repositories.PerguntaRepository;
 import com.tcc.drakes.repositories.RespostaRepository;
+import com.tcc.drakes.repositories.SalaRepository;
 import com.tcc.drakes.repositories.UsuarioRepository;
 
 import jakarta.transaction.Transactional;
@@ -29,6 +30,9 @@ public class RespostaService {
 
     @Autowired
     private RespostaRepository respostaRepository;
+    
+    @Autowired
+    private SalaRepository salaRepository;
 
     @Transactional
     public RespostaDTO salvarResposta(RespostaDTO dto) {
@@ -40,6 +44,9 @@ public class RespostaService {
 
         var alternativa = alternativaRepository.findById(dto.getIdAlternativaSelecionada())
             .orElseThrow(() -> new RuntimeException("Alternativa não encontrada"));
+        
+        var sala = salaRepository.findById(dto.getIdSala())
+        	    .orElseThrow(() -> new RuntimeException("Sala não encontrada"));
 
         boolean correta = alternativa.isCorreta(); // aqui está a verificação!
 
@@ -49,6 +56,7 @@ public class RespostaService {
         resposta.setAlternativaSelecionada(alternativa);
         resposta.setTempoGasto(dto.getTempoGasto());
         resposta.setRespostaCorreta(correta);
+        resposta.setSala(sala);
 
         Resposta respostaSalva = respostaRepository.save(resposta);
 

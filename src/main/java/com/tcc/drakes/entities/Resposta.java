@@ -24,28 +24,35 @@ public class Resposta {
     @JoinColumn(name = "pergunta_id")
     private Pergunta pergunta;
 
-    // Relacionamento com a Alternativa que o usuário selecionou
     @ManyToOne
     @JoinColumn(name = "alternativa_selecionada_id")
     private Alternativa alternativaSelecionada;
 
+    @ManyToOne
+    @JoinColumn(name = "sala_id") // Novo relacionamento com Sala
+    private Sala sala;
+
     private Integer tempoGasto;
 
-    private boolean respostaCorreta; // Armazena o resultado da verificação
+    private boolean respostaCorreta;
 
     public Resposta() {
     }
 
-    public Resposta(Long idResposta, Usuario usuario, Pergunta pergunta, Alternativa alternativaSelecionada, Integer tempoGasto, boolean respostaCorreta) {
+    public Resposta(Long idResposta, Usuario usuario, Pergunta pergunta,
+                    Alternativa alternativaSelecionada, Sala sala,
+                    Integer tempoGasto, boolean respostaCorreta) {
         this.idResposta = idResposta;
         this.usuario = usuario;
         this.pergunta = pergunta;
         this.alternativaSelecionada = alternativaSelecionada;
+        this.sala = sala;
         this.tempoGasto = tempoGasto;
         this.respostaCorreta = respostaCorreta;
     }
 
     // Getters e Setters
+
     public Long getIdResposta() {
         return idResposta;
     }
@@ -76,6 +83,14 @@ public class Resposta {
 
     public void setAlternativaSelecionada(Alternativa alternativaSelecionada) {
         this.alternativaSelecionada = alternativaSelecionada;
+    }
+
+    public Sala getSala() {
+        return sala;
+    }
+
+    public void setSala(Sala sala) {
+        this.sala = sala;
     }
 
     public Integer getTempoGasto() {

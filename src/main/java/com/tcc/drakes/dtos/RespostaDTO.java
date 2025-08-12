@@ -17,7 +17,7 @@ public class RespostaDTO {
         this.idUsuario = entity.getUsuario() != null ? entity.getUsuario().getId() : null;
         this.idPergunta = entity.getPergunta() != null ? entity.getPergunta().getIdPergunta() : null;
         this.idAlternativaSelecionada = entity.getAlternativaSelecionada() != null ? entity.getAlternativaSelecionada().getIdAlternativa() : null;
-        //this.idSala = entity.getSala() != null ? entity.getSala().getIdSala() : null;
+        this.idSala = entity.getSala() != null ? entity.getSala().getIdSala() : null;
         this.tempoGasto = entity.getTempoGasto();
         this.respostaCorreta = entity.isRespostaCorreta();
     }
