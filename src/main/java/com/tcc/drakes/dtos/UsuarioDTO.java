@@ -1,16 +1,28 @@
 package com.tcc.drakes.dtos;
 
-import com.tcc.drakes.entities.TipoUsuario;
+import com.tcc.drakes.validation.DominioPermitido;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class UsuarioDTO {
+
+	@NotBlank(message = "O nome é obrigatório.")
+	@Size(min = 3, message = "O nome deve ter no mínimo 3 caracteres.")
 	private String nome;
+
+	@NotBlank(message = "O e-mail é obrigatório.")
+	@Email(message = "O formato do e-mail é inválido.")
+	@DominioPermitido
 	private String email;
+
+	@NotBlank(message = "A senha é obrigatória.")
+	@Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres.")
 	private String senha;
+
 	private String biografia;
-	//private TipoUsuario tipoUsuario;
-	
+
 	private int pontuacao;
-	
 
 	public int getPontuacao() {
 		return pontuacao;
@@ -51,13 +63,4 @@ public class UsuarioDTO {
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}
-
-//	public TipoUsuario getTipoUsuario() {
-	//	return tipoUsuario;
-	//}
-
-	//public void setTipoUsuario(TipoUsuario tipoUsuario) {
-		//this.tipoUsuario = tipoUsuario;
-	//}
-
 }

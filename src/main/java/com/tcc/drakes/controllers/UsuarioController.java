@@ -17,6 +17,8 @@ import com.tcc.drakes.dtos.UsuarioDTO;
 import com.tcc.drakes.entities.Usuario;
 import com.tcc.drakes.services.UsuarioService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/usuarios")
@@ -27,7 +29,7 @@ public class UsuarioController {
 
     // Endpoint para registrar o usuário
     @PostMapping("/cadastro")
-    public Usuario cadastrarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
+    public Usuario cadastrarUsuario(@Valid @RequestBody UsuarioDTO usuarioDTO) {
         return usuarioService.criarUsuario(usuarioDTO);
     }
 
