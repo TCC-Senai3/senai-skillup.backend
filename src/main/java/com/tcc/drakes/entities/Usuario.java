@@ -1,22 +1,14 @@
 package com.tcc.drakes.entities;
 
-import java.util.Collection;
-import java.util.List;
-
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.tcc.drakes.entities.enums.TipoUsuario;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_usuario")
@@ -31,10 +23,14 @@ public class Usuario implements UserDetails {
 	private String senha;
 	private String biografia;
 
-	@Enumerated(EnumType.STRING)
-	private TipoUsuario tipoUsuario;
-
 	private int pontuacao = 0;
+
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "usuario_role", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
+
+	@OneToMany(mappedBy = "usuario")
+	private List<Resposta> respostas;
 
 	public Usuario() {
 	}
@@ -45,31 +41,57 @@ public class Usuario implements UserDetails {
 		this.email = email;
 		this.senha = senha;
 		this.biografia = biografia;
-
 		this.pontuacao = pontuacao;
 	}
 
-	@OneToMany(mappedBy = "usuario")
-	private List<Resposta> respostas;
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		for (Role role : this.roles) {
+			// Adiciona a própria role (ex: "ROLE_ADMIN")
+			authorities.add(new SimpleGrantedAuthority(role.getNome()));
+			// Adiciona as permissões da role (ex: "CRIAR_FORMULARIO")
+			for (Permissao permissao : role.getPermissoes()) {
+				authorities.add(new SimpleGrantedAuthority(permissao.getNome()));
+			}
+		}
+		return authorities;
+	}
 
+	// Métodos do UserDetails (permanecem os mesmos)
+	@Override
+	public String getPassword() {
+		return this.senha;
+	}
+
+	@Override
+	public String getUsername() {
+		return this.email;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+	// Getters e Setters
 	public long getId() {
 		return id;
-	}
-
-	public int getPontuacao() {
-		return pontuacao;
-	}
-
-	public void setPontuacao(int pontuacao) {
-		this.pontuacao = pontuacao;
-	}
-
-	public String getBiografia() {
-		return biografia;
-	}
-
-	public void setBiografia(String biografia) {
-		this.biografia = biografia;
 	}
 
 	public void setId(long id) {
@@ -100,6 +122,22 @@ public class Usuario implements UserDetails {
 		this.senha = senha;
 	}
 
+	public String getBiografia() {
+		return biografia;
+	}
+
+	public void setBiografia(String biografia) {
+		this.biografia = biografia;
+	}
+
+	public int getPontuacao() {
+		return pontuacao;
+	}
+
+	public void setPontuacao(int pontuacao) {
+		this.pontuacao = pontuacao;
+	}
+
 	public List<Resposta> getRespostas() {
 		return respostas;
 	}
@@ -108,59 +146,15 @@ public class Usuario implements UserDetails {
 		this.respostas = respostas;
 	}
 
-	public TipoUsuario getTipoUsuario() {
-		return tipoUsuario;
+	public Set<Role> getRoles() {
+		return roles;
 	}
 
-	public void setTipoUsuario(TipoUsuario tipoUsuario) {
-		this.tipoUsuario = tipoUsuario;
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 
 	public void incrementarPontuacao() {
 		this.pontuacao += 1;
-	}
-
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// Define as permissões (roles) do usuário.
-		if (this.tipoUsuario == TipoUsuario.ADMIN) {
-			// Um ADMIN tem permissão de ADMIN e de USER
-			return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-		} else {
-			// Um USER tem apenas a permissão de USER
-			return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-		}
-	}
-
-	@Override
-	public String getPassword() {
-		return this.senha;
-	}
-
-	@Override
-	public String getUsername() {
-		// Vamos usar o e-mail como "username" para o login
-		return this.email;
-	}
-
-	// Por enquanto, vamos deixar tudo como 'true'
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
 	}
 }
