@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/usuarios/cadastro").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/formularios").hasAuthority("CRIAR_FORMULARIO")
+                        .requestMatchers(HttpMethod.POST, "/temas").hasAuthority("CRIAR_FORMULARIO")
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated()
