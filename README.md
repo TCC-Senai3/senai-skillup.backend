@@ -148,4 +148,4 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE.md) para
 Feito por isaacdev07 Entre em contato!
 
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/[seu-linkedin]/)
-[![github](https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/[seu-usuario])
+[![github](https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/isaacdev07)
