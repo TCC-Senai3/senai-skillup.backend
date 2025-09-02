@@ -19,54 +19,59 @@ import jakarta.transaction.Transactional;
 @Service
 public class RespostaService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private PerguntaRepository perguntaRepository;
+	@Autowired
+	private RankingService rankingService;
 
-    @Autowired
-    private AlternativaRepository alternativaRepository;
+	@Autowired
+	private PerguntaRepository perguntaRepository;
 
-    @Autowired
-    private RespostaRepository respostaRepository;
-    
-    @Autowired
-    private SalaRepository salaRepository;
+	@Autowired
+	private AlternativaRepository alternativaRepository;
 
-    @Transactional
-    public RespostaDTO salvarResposta(RespostaDTO dto) {
-        var usuario = usuarioRepository.findById(dto.getIdUsuario())
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+	@Autowired
+	private RespostaRepository respostaRepository;
 
-        var pergunta = perguntaRepository.findById(dto.getIdPergunta())
-            .orElseThrow(() -> new RuntimeException("Pergunta não encontrada"));
+	@Autowired
+	private SalaRepository salaRepository;
 
-        var alternativa = alternativaRepository.findById(dto.getIdAlternativaSelecionada())
-            .orElseThrow(() -> new RuntimeException("Alternativa não encontrada"));
-        
-        var sala = salaRepository.findById(dto.getIdSala())
-        	    .orElseThrow(() -> new RuntimeException("Sala não encontrada"));
+	@Transactional
+	public RespostaDTO salvarResposta(RespostaDTO dto) {
+		var usuario = usuarioRepository.findById(dto.getIdUsuario())
+				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        boolean correta = alternativa.isCorreta(); // aqui está a verificação!
+		var pergunta = perguntaRepository.findById(dto.getIdPergunta())
+				.orElseThrow(() -> new RuntimeException("Pergunta não encontrada"));
 
-        Resposta resposta = new Resposta();
-        resposta.setUsuario(usuario);
-        resposta.setPergunta(pergunta);
-        resposta.setAlternativaSelecionada(alternativa);
-        resposta.setTempoGasto(dto.getTempoGasto());
-        resposta.setRespostaCorreta(correta);
-        resposta.setSala(sala);
+		var alternativa = alternativaRepository.findById(dto.getIdAlternativaSelecionada())
+				.orElseThrow(() -> new RuntimeException("Alternativa não encontrada"));
 
-        Resposta respostaSalva = respostaRepository.save(resposta);
+		var sala = salaRepository.findById(dto.getIdSala())
+				.orElseThrow(() -> new RuntimeException("Sala não encontrada"));
 
-        return new RespostaDTO(respostaSalva);
-    }
+		boolean correta = alternativa.isCorreta();
 
-    public List<RespostaDTO> listarRespostas() {
-        return respostaRepository.findAll().stream()
-                .map(RespostaDTO::new)
-                .collect(Collectors.toList());
-    }
+		if (correta) {
+			rankingService.adicionarPontuacao(dto.getIdUsuario(), dto.getIdSala());
+		}
+
+		Resposta resposta = new Resposta();
+		resposta.setUsuario(usuario);
+		resposta.setPergunta(pergunta);
+		resposta.setAlternativaSelecionada(alternativa);
+		resposta.setTempoGasto(dto.getTempoGasto());
+		resposta.setRespostaCorreta(correta);
+		resposta.setSala(sala);
+
+		Resposta respostaSalva = respostaRepository.save(resposta);
+
+		return new RespostaDTO(respostaSalva);
+	}
+
+	public List<RespostaDTO> listarRespostas() {
+		return respostaRepository.findAll().stream().map(RespostaDTO::new).collect(Collectors.toList());
+	}
 
 }
