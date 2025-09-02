@@ -45,8 +45,6 @@ public class SalaController {
         salaService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-    // ✅ NOVO ENDPOINT: Usuário entra em uma sala
     @PostMapping("/{idSala}/entrar/{idUsuario}")
     public ResponseEntity<String> entrarNaSala(
             @PathVariable Long idSala,

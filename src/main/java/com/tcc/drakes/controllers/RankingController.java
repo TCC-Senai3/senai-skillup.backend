@@ -1,12 +1,16 @@
 package com.tcc.drakes.controllers;
 
-import com.tcc.drakes.dtos.RankingDTO;
-import com.tcc.drakes.services.RankingService;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.tcc.drakes.dtos.RankingDTO;
+import com.tcc.drakes.services.RankingService;
 
 @RestController
 @RequestMapping("/ranking")
@@ -26,8 +30,4 @@ public class RankingController {
         return rankingService.listarRankingPorSala(idSala);
     }
 
-    @PostMapping("/pontuar")
-    public void pontuar(@RequestParam Long idUsuario, @RequestParam Long idSala) {
-        rankingService.adicionarPontuacao(idUsuario, idSala);
-    }
 }

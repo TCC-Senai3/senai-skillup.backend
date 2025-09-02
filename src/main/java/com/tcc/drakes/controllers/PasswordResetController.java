@@ -24,7 +24,6 @@ public class PasswordResetController {
             passwordResetService.criarTokenDeRedefinicao(email);
             return ResponseEntity.ok("Um link para redefinição de senha foi enviado para o seu e-mail.");
         } catch (RuntimeException e) {
-            // Retorna uma mensagem de erro genérica para não revelar se um e-mail existe ou não no sistema
             return ResponseEntity.badRequest().body("Se um usuário com este e-mail existir, um link de redefinição será enviado.");
         }
     }
@@ -34,7 +33,7 @@ public class PasswordResetController {
     public ResponseEntity<String> validateResetToken(@RequestParam String token) {
         String validationResult = passwordResetService.validarToken(token);
         if (validationResult != null) {
-            // Se houver uma mensagem de erro (ex: "Token expirado."), retorne-a
+            
             return ResponseEntity.badRequest().body(validationResult);
         }
         return ResponseEntity.ok("Token válido.");

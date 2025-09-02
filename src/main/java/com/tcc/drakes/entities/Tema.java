@@ -20,11 +20,6 @@ public class Tema {
 	
 	private String nomeTema;
 	
-	// Um Tema pode ter muitas Perguntas (OneToMany)
-	// mappedBy indica o nome do atributo na classe Pergunta que mapeia esta relação
-	// CascadeType.ALL significa que operações como persistir, remover, etc., em Tema
-	// serão propagadas para as Perguntas associadas. CUIDADO ao usar ALL, avalie seu caso de uso.
-	// orphanRemoval = true garante que se uma Pergunta for desassociada de um Tema, ela será removida do banco.
 	@OneToMany(mappedBy = "tema", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
 	private List<Pergunta> perguntas = new ArrayList<>(); // Inicialize para evitar NullPointerException
 	
