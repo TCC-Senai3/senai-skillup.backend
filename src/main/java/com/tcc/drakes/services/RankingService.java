@@ -10,6 +10,7 @@ import com.tcc.drakes.repositories.UsuarioRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Importe a anotação @Transactional
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,16 +41,26 @@ public class RankingService {
             .collect(Collectors.toList());
     }
 
+    
+    @Transactional 
     public void adicionarPontuacao(Long idUsuario, Long idSala) {
-        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        Sala sala = salaRepository.findById(idSala).orElseThrow(() -> new RuntimeException("Sala não encontrada"));
+        
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Sala sala = salaRepository.findById(idSala)
+                .orElseThrow(() -> new RuntimeException("Sala não encontrada"));
 
+        
         Ranking ranking = rankingRepository.findByUsuarioAndSala(usuario, sala);
         if (ranking == null) {
             ranking = new Ranking(usuario, sala);
         }
 
-        ranking.incrementarPontuacao();
+        ranking.incrementarPontuacao(); 
+        usuario.incrementarPontuacao(); 
+
+        
         rankingRepository.save(ranking);
+        usuarioRepository.save(usuario); 
     }
 }
