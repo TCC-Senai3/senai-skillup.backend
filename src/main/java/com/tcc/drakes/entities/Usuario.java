@@ -55,6 +55,9 @@ public class Usuario implements UserDetails {
 				authorities.add(new SimpleGrantedAuthority(permissao.getNome()));
 			}
 		}
+		
+		 
+		
 		return authorities;
 	}
 

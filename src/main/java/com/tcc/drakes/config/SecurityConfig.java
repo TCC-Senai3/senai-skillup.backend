@@ -28,8 +28,6 @@ public class SecurityConfig {
     @Autowired
     private UserDetailsService userDetailsService;
     
-    // --- ADICIONADO ---
-    // Injetamos o PasswordEncoder que será criado em outra classe de configuração
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -42,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/formularios").hasAuthority("CRIAR_FORMULARIO")
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").hasAuthority("ROLE_USER")
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -54,7 +52,6 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        // Agora ele usa o PasswordEncoder injetado
         authProvider.setPasswordEncoder(passwordEncoder); 
         return authProvider;
     }

@@ -22,8 +22,6 @@ public class Formulario {
 
     private String titulo;
 
-    // Um Formulário pode ter muitas Perguntas (OneToMany)
-    // A chave estrangeira 'formulario_id' estará na tabela 'tb_pergunta'
     @OneToMany(mappedBy = "formulario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pergunta> perguntas = new ArrayList<>();
 

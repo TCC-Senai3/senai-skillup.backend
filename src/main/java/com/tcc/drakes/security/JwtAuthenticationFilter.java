@@ -16,14 +16,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component 
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UserDetailsService userDetailsService; 
+    private UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -32,13 +32,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // --- INÍCIO DO DEBUG ---
+        System.out.println(">>> [FILTRO JWT] Etapa 1: Filtro iniciado para a rota: " + request.getRequestURI());
+        // --- FIM DO DEBUG ---
+
         String path = request.getRequestURI();
         if ("/usuarios/cadastro".equals(path) || "/usuarios/login".equals(path)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
@@ -49,27 +52,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        userEmail = jwtUtil.extractEmail(jwt); 
+        // --- INÍCIO DO DEBUG ---
+        System.out.println(">>> [FILTRO JWT] Etapa 2: Token extraído do cabeçalho.");
+        // --- FIM DO DEBUG ---
 
-     
+        userEmail = jwtUtil.extractEmail(jwt);
+        // --- INÍCIO DO DEBUG ---
+        System.out.println(">>> [FILTRO JWT] Etapa 3: E-mail extraído do token: " + userEmail);
+        // --- FIM DO DEBUG ---
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            // --- INÍCIO DO DEBUG ---
+            System.out.println(">>> [FILTRO JWT] Etapa 4: UserDetails carregado para o usuário: " + userDetails.getUsername());
+            // --- FIM DO DEBUG ---
 
-        
-            if (jwtUtil.validateToken(jwt)) {
-                
+            if (jwtUtil.validateToken(jwt)) { // A validação do token aqui pode estar falhando
+                // --- INÍCIO DO DEBUG ---
+                System.out.println(">>> [FILTRO JWT] Etapa 5: Token validado com sucesso. Autenticando usuário.");
+                // --- FIM DO DEBUG ---
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                
-                
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                 // --- INÍCIO DO DEBUG ---
+                 System.out.println(">>> [FILTRO JWT] ERRO: A validação do token falhou!");
+                 // --- FIM DO DEBUG ---
             }
         }
-        
         filterChain.doFilter(request, response);
     }
 }
