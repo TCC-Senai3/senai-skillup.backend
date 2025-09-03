@@ -12,6 +12,4 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    // No futuro, outros beans gerais da aplicação podem vir aqui.
 }
