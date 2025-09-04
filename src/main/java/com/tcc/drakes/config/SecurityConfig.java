@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/respostas").permitAll()
                         .requestMatchers(HttpMethod.POST, "/senha/esqueceu").permitAll()
                         .requestMatchers(HttpMethod.POST, "/senha/reset").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/relatorios/usuarios").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").permitAll()
                         .anyRequest().authenticated()

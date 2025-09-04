@@ -1,8 +1,10 @@
 package com.tcc.drakes.services;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+// Importe as classes Path e Paths para manipular caminhos de forma segura
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,35 +31,41 @@ public class RelatorioUsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public void gerarRelatorio(String caminho) throws JRException, IOException {
-        // Recupera todos os usuários do banco de dados
+    // ## MUDANÇA 1: O método agora recebe o DIRETÓRIO e o NOME DO ARQUIVO separadamente.
+    // Isso torna o código mais claro, seguro e flexível.
+    public void gerarRelatorio(String diretorio, String nomeArquivo) throws JRException, IOException {
+        
         List<Usuario> usuarios = usuarioRepository.findAll();
 
-        // Converte os usuários para o DTO de relatório
         List<RelatorioUsuarioDTO> usuariosRelatorio = usuarios.stream()
                 .map(RelatorioUsuarioDTO::new)
                 .collect(Collectors.toList());
 
-        // Cria a fonte de dados para o JasperReports
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(usuariosRelatorio);
 
-        // Cria os parâmetros do relatório
         Map<String, Object> parametros = new HashMap<>();
         parametros.put("titulo", "Relatório de Usuários");
 
-        // Carrega o template do relatório
         JasperReport jasperReport = JasperCompileManager
                 .compileReport(getClass().getResourceAsStream("/relatorios/relatorio_usuarios.jrxml"));
 
-        // Preenche o relatório com os dados
         JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parametros, dataSource);
+        
+        // ## MUDANÇA 2: Construir o caminho completo de forma segura
+        // Usamos a classe 'Path' para juntar o diretório e o nome do arquivo.
+        // Isso funciona bem em qualquer sistema operacional (Windows, Linux, etc.).
+        Path caminhoCompleto = Paths.get(diretorio, nomeArquivo);
 
-        // Cria o arquivo PDF de saída
-        try (FileOutputStream outputStream = new FileOutputStream(new File(caminho))) {
-            // Exporta o relatório para o formato PDF
+        // Mensagem de log para ajudar a depurar. Você pode vê-la no console.
+        System.out.println("Salvando relatório em: " + caminhoCompleto.toString());
+
+        // ## MUDANÇA 3: Usar o caminho completo para criar o arquivo de saída
+        // O 'try-with-resources' garante que o FileOutputStream seja fechado corretamente.
+        try (FileOutputStream outputStream = new FileOutputStream(caminhoCompleto.toFile())) {
             JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
         } catch (IOException e) {
-            throw new IOException("Erro ao salvar o relatório de usuários", e);
+            // Lançamos a exceção com uma mensagem mais detalhada
+            throw new IOException("Erro ao salvar o relatório de usuários em " + caminhoCompleto.toString(), e);
         }
     }
 }
