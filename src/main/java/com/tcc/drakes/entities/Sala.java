@@ -33,7 +33,7 @@ public class Sala {
 
 	private LocalDate dataCriacao;
 	
-	@OneToOne(cascade = CascadeType.ALL) // Cria e persiste o formulário junto com a sala
+	@OneToOne(cascade = CascadeType.ALL) 
 	@JoinColumn(name = "id_formulario")
 	private Formulario formulario;
 

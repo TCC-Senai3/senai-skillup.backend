@@ -21,9 +21,9 @@ public class Tema {
 	private String nomeTema;
 	
 	@OneToMany(mappedBy = "tema", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
-	private List<Pergunta> perguntas = new ArrayList<>(); // Inicialize para evitar NullPointerException
+	private List<Pergunta> perguntas = new ArrayList<>(); 
 	
-	public Tema(Long idTema, String nomeTema) { // Construtor ajustado
+	public Tema(Long idTema, String nomeTema) {
 		this.idTema = idTema;
 		this.nomeTema = nomeTema;
 	}
@@ -55,14 +55,14 @@ public class Tema {
 		this.perguntas = perguntas;
 	}
 
-	// Métodos auxiliares para adicionar/remover perguntas, garantindo a bidirecionalidade
+	
 	public void addPergunta(Pergunta pergunta) {
 		this.perguntas.add(pergunta);
-		pergunta.setTema(this); // Garante que a pergunta saiba qual é o seu tema
+		pergunta.setTema(this); 
 	}
 
 	public void removePergunta(Pergunta pergunta) {
 		this.perguntas.remove(pergunta);
-		pergunta.setTema(null); // Desassocia a pergunta do tema
+		pergunta.setTema(null); 
 	}
 }

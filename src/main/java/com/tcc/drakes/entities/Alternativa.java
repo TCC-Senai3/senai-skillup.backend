@@ -16,19 +16,18 @@ public class Alternativa {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idAlternativa;
 	
-	// Muitas Alternativas pertencem a uma Pergunta (ManyToOne)
 	@ManyToOne
-	@JoinColumn(name = "pergunta_id") // Nome da coluna da chave estrangeira na tabela Alternativa
+	@JoinColumn(name = "pergunta_id") 
 	private Pergunta pergunta;
 	
-	private String textoAlternativa; // Uma única alternativa com seu texto
+	private String textoAlternativa; 
 	
-	private boolean correta; // Indica se esta alternativa é a resposta correta para a pergunta
+	private boolean correta; 
 
 	public Alternativa() {
 	}
 
-	// Construtor ajustado
+	
 	public Alternativa(Long idAlternativa, Pergunta pergunta, String textoAlternativa, boolean correta) {
 		this.idAlternativa = idAlternativa;
 		this.pergunta = pergunta;

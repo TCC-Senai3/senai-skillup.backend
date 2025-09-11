@@ -57,18 +57,18 @@ public class Formulario {
         this.perguntas = perguntas;
     }
 
-    // Métodos auxiliares para gerenciar a lista de perguntas e garantir a bidirecionalidade
+    
     public void addPergunta(Pergunta pergunta) {
         if (!this.perguntas.contains(pergunta)) {
             this.perguntas.add(pergunta);
-            pergunta.setFormulario(this); // Garante que a Pergunta saiba qual é o seu Formulário
+            pergunta.setFormulario(this); 
         }
     }
 
     public void removePergunta(Pergunta pergunta) {
         if (this.perguntas.contains(pergunta)) {
             this.perguntas.remove(pergunta);
-            pergunta.setFormulario(null); // Desassocia a Pergunta do Formulário
+            pergunta.setFormulario(null); 
         }
     }
 }

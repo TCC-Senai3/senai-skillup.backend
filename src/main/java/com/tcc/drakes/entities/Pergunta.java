@@ -22,16 +22,16 @@ public class Pergunta {
 	
 	private String textoPergunta;
 	
-	// Muitas Perguntas pertencem a um Tema (ManyToOne)
+	
 	@ManyToOne
-	@JoinColumn(name = "tema_id") // Nome da coluna da chave estrangeira na tabela Pergunta
+	@JoinColumn(name = "tema_id")
 	private Tema tema;
 	
 	@ManyToOne
-	@JoinColumn(name = "formulario_id") // Nome da coluna da chave estrangeira na tabela Pergunta
-	private Formulario formulario; // Novo atributo para a relação com Formulário
+	@JoinColumn(name = "formulario_id") 
+	private Formulario formulario; 
 	
-	// Uma Pergunta pode ter muitas Alternativas (OneToMany)
+	
 	@OneToMany(mappedBy = "pergunta", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
 	private List<Alternativa> alternativas = new ArrayList<>();
 	
@@ -41,12 +41,12 @@ public class Pergunta {
 	public Pergunta() {
 	}
 
-	// Construtor ajustado para incluir Formulário
+
 	public Pergunta(Long idPergunta, String textoPergunta, Tema tema, Formulario formulario) {
 		this.idPergunta = idPergunta;
 		this.textoPergunta = textoPergunta;
 		this.tema = tema;
-		this.formulario = formulario; // Adicionado Formulário ao construtor
+		this.formulario = formulario; 
 	}
 
 	public Long getIdPergunta() {
@@ -73,11 +73,11 @@ public class Pergunta {
 		this.tema = tema;
 	}
 
-	public Formulario getFormulario() { // Novo getter
+	public Formulario getFormulario() { 
 		return formulario;
 	}
 
-	public void setFormulario(Formulario formulario) { // Novo setter
+	public void setFormulario(Formulario formulario) { 
 		this.formulario = formulario;
 	}
 
@@ -89,7 +89,7 @@ public class Pergunta {
 		this.alternativas = alternativas;
 	}
 	
-	// Métodos auxiliares para adicionar/remover alternativas
+
 	public void addAlternativa(Alternativa alternativa) {
 		this.alternativas.add(alternativa);
 		alternativa.setPergunta(this);

@@ -1,10 +1,10 @@
-package com.tcc.drakes.entities; // No mesmo pacote que sua classe Usuario
+package com.tcc.drakes.entities; 
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tb_password_reset_token") // Nome da tabela no banco
+@Table(name = "tb_password_reset_token") 
 public class PasswordResetToken {
 
     @Id
@@ -14,7 +14,7 @@ public class PasswordResetToken {
     @Column(nullable = false, unique = true)
     private String token;
 
-    // AQUI ESTÁ A MUDANÇA: alterado de 'User' para 'Usuario'
+   
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "usuario_id")
     private Usuario usuario;
@@ -23,10 +23,10 @@ public class PasswordResetToken {
     private LocalDateTime expiryDate;
 
 
-    // --- Construtores, Getters e Setters ---
+   
     public PasswordResetToken() {}
 
-    // Getters e Setters para todos os campos...
+   
     public Long getId() {
         return id;
     }

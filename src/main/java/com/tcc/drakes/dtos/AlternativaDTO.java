@@ -3,16 +3,14 @@ package com.tcc.drakes.dtos;
 import com.tcc.drakes.entities.Alternativa;
 
 public class AlternativaDTO {
-	
+
 	private Long idAlternativa;
-	
-	// Referência ao DTO da Pergunta (ou apenas o ID, dependendo da sua necessidade)
-	private Long idPergunta; // Para este DTO, o ID da Pergunta é suficiente, evitando carregamento excessivo
-	// private PerguntaDTO pergunta; // Poderia ser assim se você precisasse dos detalhes da pergunta na alternativa
-	
-	private String textoAlternativa; // Uma única alternativa com seu texto
-	private boolean correta; // Indica se esta alternativa é a resposta correta para a pergunta
-	
+
+	private Long idPergunta;
+
+	private String textoAlternativa;
+	private boolean correta;
+
 	public AlternativaDTO(Alternativa entity) {
 		this.idAlternativa = entity.getIdAlternativa();
 		if (entity.getPergunta() != null) {
@@ -22,7 +20,6 @@ public class AlternativaDTO {
 		this.correta = entity.isCorreta();
 	}
 
-	// Construtor completo ajustado
 	public AlternativaDTO(Long idAlternativa, Long idPergunta, String textoAlternativa, boolean correta) {
 		this.idAlternativa = idAlternativa;
 		this.idPergunta = idPergunta;

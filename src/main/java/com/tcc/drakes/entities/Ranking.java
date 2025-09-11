@@ -69,7 +69,7 @@ public class Ranking {
 
    
 
-    // Método utilitário para incrementar pontuação
+    
     public void incrementarPontuacao() {
         this.pontuacao++;
        

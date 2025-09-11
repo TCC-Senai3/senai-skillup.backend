@@ -12,7 +12,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final String SECRET_KEY = "sua-chave-secreta";
-    private static final long EXPIRATION_TIME = 86400000; // 1 dia em ms
+    private static final long EXPIRATION_TIME = 86400000; 
 
     public String generateToken(String email) {
         return Jwts.builder()

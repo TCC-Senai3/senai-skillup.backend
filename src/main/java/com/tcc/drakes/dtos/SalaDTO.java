@@ -16,7 +16,7 @@ public class SalaDTO {
     private LocalDate dataCriacao;
     private StatusSala statusSala;
 
-    private Long idFormulario; // ✅ Padronizado
+    private Long idFormulario; 
     private List<Long> idParticipantes;
 
     public SalaDTO() {
@@ -42,7 +42,7 @@ public class SalaDTO {
         }
     }
 
-    // Getters e Setters
+    
 
     public Long getIdSala() {
         return idSala;

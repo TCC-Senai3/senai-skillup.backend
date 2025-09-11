@@ -9,16 +9,16 @@ public class PerguntaDTO {
     private Long idPergunta;
     private String textoPergunta;
 
-    // DTO do Tema simplificado
+    
     private TemaDTO tema;
 
-    // Apenas o ID do formulário para evitar recursão
+   
     private Long idFormulario;
 
-    // Lista de alternativas
+   
     private List<AlternativaDTO> alternativas;
 
-    // Construtor baseado na entidade
+    
     public PerguntaDTO(Pergunta entity) {
         this.idPergunta = entity.getIdPergunta();
         this.textoPergunta = entity.getTextoPergunta();
@@ -38,7 +38,7 @@ public class PerguntaDTO {
         }
     }
 
-    // Construtor completo
+    
     public PerguntaDTO(Long idPergunta, String textoPergunta, TemaDTO tema, Long idFormulario, List<AlternativaDTO> alternativas) {
         this.idPergunta = idPergunta;
         this.textoPergunta = textoPergunta;

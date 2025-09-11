@@ -48,9 +48,9 @@ public class Usuario implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		for (Role role : this.roles) {
-			// Adiciona a própria role (ex: "ROLE_ADMIN")
+			
 			authorities.add(new SimpleGrantedAuthority(role.getNome()));
-			// Adiciona as permissões da role (ex: "CRIAR_FORMULARIO")
+			
 			for (Permissao permissao : role.getPermissoes()) {
 				authorities.add(new SimpleGrantedAuthority(permissao.getNome()));
 			}

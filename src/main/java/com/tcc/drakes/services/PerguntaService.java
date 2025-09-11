@@ -32,7 +32,7 @@ public class PerguntaService {
         Pergunta pergunta = new Pergunta();
         pergunta.setTextoPergunta(perguntaDTO.getTextoPergunta());
 
-        // Associa o Tema
+       
         if (perguntaDTO.getTema() != null && perguntaDTO.getTema().getIdTema() != null) {
             Tema tema = temaRepository.findById(perguntaDTO.getTema().getIdTema())
                     .orElseThrow(() -> new RuntimeException("Tema não encontrado com ID: " + perguntaDTO.getTema().getIdTema()));
@@ -41,7 +41,7 @@ public class PerguntaService {
             throw new IllegalArgumentException("Uma pergunta deve estar associada a um Tema.");
         }
 
-        // Associa o Formulário
+        
         if (perguntaDTO.getIdFormulario() != null) {
             Formulario formulario = formularioRepository.findById(perguntaDTO.getIdFormulario())
                     .orElseThrow(() -> new RuntimeException("Formulário não encontrado com ID: " + perguntaDTO.getIdFormulario()));

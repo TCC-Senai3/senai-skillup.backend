@@ -11,13 +11,12 @@ import jakarta.validation.Payload;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = DominioPermitidoValidator.class) // <-- Conecta com a lógica que faremos no Passo 3
+@Constraint(validatedBy = DominioPermitidoValidator.class)
 public @interface DominioPermitido {
 
-    // Mensagem de erro padrão se a validação falhar
     String message() default "O domínio do e-mail não é permitido.";
 
-    // Linhas padrão obrigatórias para anotações de validação
+    
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

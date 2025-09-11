@@ -22,10 +22,8 @@ import com.tcc.drakes.repositories.UsuarioRepository;
 import com.tcc.drakes.security.JwtUtil;
 
 @Service
-// --- INÍCIO DA ATUALIZAÇÃO ---
-// 1. "Assinamos o contrato" com o Spring Security, implementando a interface UserDetailsService
 public class UsuarioService implements UserDetailsService {
-// --- FIM DA ATUALIZAÇÃO ---
+
 
 	@Autowired
 	private UsuarioRepository usuarioRepository;
@@ -39,15 +37,13 @@ public class UsuarioService implements UserDetailsService {
 	@Autowired
 	private JwtUtil jwtUtil;
 
-	// --- INÍCIO DA ATUALIZAÇÃO ---
-	// 2. Adicionamos o método obrigatório que o Spring Security vai usar para
-	// buscar usuários
+	
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		return usuarioRepository.findByEmail(email)
 				.orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o e-mail: " + email));
 	}
-	// --- FIM DA ATUALIZAÇÃO ---
+
 
 	public Usuario criarUsuario(UsuarioDTO usuarioDTO) {
 		if (usuarioRepository.findByEmail(usuarioDTO.getEmail()).isPresent()) {

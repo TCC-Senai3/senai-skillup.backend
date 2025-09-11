@@ -50,7 +50,7 @@ public class FormularioService {
         Pergunta pergunta = perguntaRepository.findById(idPergunta)
                 .orElseThrow(() -> new RuntimeException("Pergunta não encontrada"));
 
-        pergunta.setFormulario(formulario); // faz a associação
+        pergunta.setFormulario(formulario); 
         perguntaRepository.save(pergunta);
 
         return new FormularioDTO(formulario);

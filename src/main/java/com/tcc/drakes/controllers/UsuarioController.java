@@ -27,7 +27,7 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // Endpoint para registrar o usuário
+  
     @PostMapping("/cadastro")
     public Usuario cadastrarUsuario(@Valid @RequestBody UsuarioDTO usuarioDTO) {
         return usuarioService.criarUsuario(usuarioDTO);

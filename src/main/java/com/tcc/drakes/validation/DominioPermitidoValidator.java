@@ -12,8 +12,7 @@ import java.util.stream.Collectors;
 @Component
 public class DominioPermitidoValidator implements ConstraintValidator<DominioPermitido, String> {
 
-    // Esta anotação injeta o valor da nossa propriedade do application.properties
-    // na variável 'allowedDomainsString'.
+ 
     @Value("${validation.allowed-domains}")
     private String allowedDomainsString;
 
