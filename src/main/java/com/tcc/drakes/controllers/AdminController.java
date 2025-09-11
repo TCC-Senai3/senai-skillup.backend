@@ -9,7 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/usuarios") // Todos os endpoints aqui começarão com /admin/usuarios
+@RequestMapping("/admin/usuarios")
 public class AdminController {
 
     @Autowired
