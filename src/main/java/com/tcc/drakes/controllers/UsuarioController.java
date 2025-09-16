@@ -1,9 +1,12 @@
 package com.tcc.drakes.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tcc.drakes.dtos.AuthResponseDTO;
 import com.tcc.drakes.dtos.LoginDTO;
 import com.tcc.drakes.dtos.UsuarioDTO;
+import com.tcc.drakes.dtos.UsuarioListaDTO;
+import com.tcc.drakes.dtos.UsuarioPerfilDTO;
 import com.tcc.drakes.entities.Usuario;
 import com.tcc.drakes.services.UsuarioService;
 
@@ -60,4 +65,21 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+    
+    @GetMapping
+	public ResponseEntity<List<UsuarioListaDTO>> getListaDeUsuarios() {
+		List<UsuarioListaDTO> listaDeUsuarios = usuarioService.listarUsuariosSimplificado();
+		return ResponseEntity.ok(listaDeUsuarios);
+	}
+    
+    @GetMapping("/{id}")
+	public ResponseEntity<UsuarioPerfilDTO> getUsuarioParaPerfil(@PathVariable Long id) {
+		try {
+			UsuarioPerfilDTO usuarioDTO = usuarioService.buscarPerfilPorId(id);
+			return ResponseEntity.ok(usuarioDTO);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+	}
+    
 }
