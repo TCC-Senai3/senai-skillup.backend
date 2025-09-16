@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import com.tcc.drakes.dtos.LoginDTO;
 import com.tcc.drakes.dtos.UsuarioDTO;
+import com.tcc.drakes.dtos.UsuarioListaDTO;
+import com.tcc.drakes.dtos.UsuarioPerfilDTO;
 import com.tcc.drakes.entities.Role;
 import com.tcc.drakes.entities.Usuario;
 import com.tcc.drakes.repositories.RoleRepository;
@@ -94,5 +97,22 @@ public class UsuarioService implements UserDetailsService {
 		usuario.setRoles(novasRoles);
 
 		return usuarioRepository.save(usuario);
+	}
+	
+	public List<UsuarioListaDTO> listarUsuariosSimplificado() {
+		return usuarioRepository.findAll()
+				.stream()
+				.map(usuario -> new UsuarioListaDTO(
+						usuario.getId(),
+						usuario.getNome(),
+						usuario.getPontuacao()))
+				.collect(Collectors.toList());
+	}
+	
+	public UsuarioPerfilDTO buscarPerfilPorId(Long id) {
+		Usuario usuario = usuarioRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
+		
+		return new UsuarioPerfilDTO(usuario); // Converte o Usuario para UsuarioPerfilDTO
 	}
 }
