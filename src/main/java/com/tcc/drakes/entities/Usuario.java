@@ -48,16 +48,14 @@ public class Usuario implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		for (Role role : this.roles) {
-			
+
 			authorities.add(new SimpleGrantedAuthority(role.getNome()));
-			
+
 			for (Permissao permissao : role.getPermissoes()) {
 				authorities.add(new SimpleGrantedAuthority(permissao.getNome()));
 			}
 		}
-		
-		 
-		
+
 		return authorities;
 	}
 

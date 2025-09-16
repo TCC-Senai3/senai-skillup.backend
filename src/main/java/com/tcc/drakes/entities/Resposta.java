@@ -29,7 +29,7 @@ public class Resposta {
     private Alternativa alternativaSelecionada;
 
     @ManyToOne
-    @JoinColumn(name = "sala_id") // Novo relacionamento com Sala
+    @JoinColumn(name = "sala_id")
     private Sala sala;
 
     private Integer tempoGasto;
@@ -51,7 +51,6 @@ public class Resposta {
         this.respostaCorreta = respostaCorreta;
     }
 
-    // Getters e Setters
 
     public Long getIdResposta() {
         return idResposta;

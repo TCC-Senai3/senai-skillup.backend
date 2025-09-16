@@ -43,12 +43,12 @@ public class SalaService {
         copyDtoToEntity(dto, sala);
 
         if (dto.getIdFormulario() != null) {
-            // ✅ Vincula formulário existente
+           
             Formulario formulario = formularioRepository.findById(dto.getIdFormulario())
                     .orElseThrow(() -> new RuntimeException("Formulário não encontrado"));
             sala.setFormulario(formulario);
         } else {
-            // ✅ Cria novo formulário
+           
             Formulario formulario = new Formulario();
             formulario.setTitulo("Formulário da sala: " + sala.getNomeSala());
             sala.setFormulario(formulario);
@@ -75,7 +75,7 @@ public class SalaService {
         return repository.findById(idSala);
     }
 
-    // ✅ Adiciona um usuário à lista de participantes da sala
+   
     public String entrarNaSala(Long idSala, Long idUsuario) {
         Sala sala = repository.findById(idSala)
                 .orElseThrow(() -> new RuntimeException("Sala não encontrada"));
