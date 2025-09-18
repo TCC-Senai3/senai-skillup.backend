@@ -8,7 +8,7 @@ public class UsuarioResponseDTO {
     private String biografia;
     private int pontuacao;
 
-  //teste
+  
     private boolean online;
 
 
