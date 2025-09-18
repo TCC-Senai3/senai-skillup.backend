@@ -10,6 +10,7 @@ import com.tcc.drakes.entities.StatusSala;
 public class SalaDTO {
 
     private Long idSala;
+    private String codigoSala; 
     private Long idUsuario;
     private Long idTema;
     private String nomeSala;
@@ -24,6 +25,7 @@ public class SalaDTO {
 
     public SalaDTO(Sala entity) {
         this.idSala = entity.getIdSala();
+        this.codigoSala = entity.getCodigoSala(); 
         this.idUsuario = entity.getIdUsuario();
         this.idTema = entity.getIdTema();
         this.nomeSala = entity.getNomeSala();
@@ -31,7 +33,7 @@ public class SalaDTO {
         this.statusSala = entity.getStatusSala();
 
         if (entity.getFormulario() != null) {
-            this.idFormulario = entity.getFormulario().getIdFormulario(); // ✅ Nome corrigido
+            this.idFormulario = entity.getFormulario().getIdFormulario();
         }
 
         if (entity.getParticipantes() != null) {
@@ -41,8 +43,8 @@ public class SalaDTO {
                 .collect(Collectors.toList());
         }
     }
-
     
+
 
     public Long getIdSala() {
         return idSala;
@@ -50,6 +52,15 @@ public class SalaDTO {
 
     public void setIdSala(Long idSala) {
         this.idSala = idSala;
+    }
+
+
+    public String getCodigoSala() {
+        return codigoSala;
+    }
+
+    public void setCodigoSala(String codigoSala) {
+        this.codigoSala = codigoSala;
     }
 
     public Long getIdUsuario() {
