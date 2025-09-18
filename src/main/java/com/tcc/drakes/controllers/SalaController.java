@@ -28,6 +28,13 @@ public class SalaController {
         return ResponseEntity.ok(dto);
     }
 
+    // ✅ NOVO ENDPOINT: Para buscar a sala pelo código de 6 dígitos.
+    @GetMapping("/codigo/{codigo}")
+    public ResponseEntity<SalaDTO> findByCodigo(@PathVariable String codigo) {
+        SalaDTO dto = salaService.findByCodigo(codigo);
+        return ResponseEntity.ok(dto);
+    }
+
     @PostMapping
     public ResponseEntity<SalaDTO> insert(@RequestBody SalaDTO dto) {
         SalaDTO newSala = salaService.insert(dto);
@@ -45,12 +52,13 @@ public class SalaController {
         salaService.delete(id);
         return ResponseEntity.noContent().build();
     }
-    @PostMapping("/{idSala}/entrar/{idUsuario}")
+
+    @PostMapping("{codigoSala}/entrar/{idUsuario}")
     public ResponseEntity<String> entrarNaSala(
-            @PathVariable Long idSala,
+            @PathVariable String codigoSala,
             @PathVariable Long idUsuario) {
 
-        String mensagem = salaService.entrarNaSala(idSala, idUsuario);
+        String mensagem = salaService.entrarNaSala(codigoSala, idUsuario);
         return ResponseEntity.ok(mensagem);
     }
 }
