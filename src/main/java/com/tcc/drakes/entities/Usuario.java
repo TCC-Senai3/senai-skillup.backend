@@ -59,7 +59,7 @@ public class Usuario implements UserDetails {
 		return authorities;
 	}
 
-	// Métodos do UserDetails (permanecem os mesmos)
+
 	@Override
 	public String getPassword() {
 		return this.senha;
