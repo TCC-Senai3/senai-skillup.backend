@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column; 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,12 +26,12 @@ public class Sala {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idSala;
 
+	@Column(name = "codigo_sala", unique = true, nullable = false, length = 6)
+	private String codigoSala;
+
 	private Long idUsuario;
-
 	private Long idTema;
-
 	private String nomeSala;
-
 	private LocalDate dataCriacao;
 	
 	@OneToOne(cascade = CascadeType.ALL) 
@@ -39,19 +40,6 @@ public class Sala {
 
 	@Enumerated(EnumType.STRING)
 	private StatusSala statusSala;
-
-	public Sala() {
-	}
-
-	public Sala(Long idSala, Long idUsuario, Long idTema, String nomeSala, LocalDate dataCriacao,
-			StatusSala statusSala) {
-		this.idSala = idSala;
-		this.idUsuario = idUsuario;
-		this.idTema = idTema;
-		this.nomeSala = nomeSala;
-		this.dataCriacao = dataCriacao;
-		this.statusSala = statusSala;
-	}
 	
 	@ManyToMany
 	@JoinTable(
@@ -61,29 +49,24 @@ public class Sala {
 	)
 	private List<Usuario> participantes = new ArrayList<>();
 
-	public List<Usuario> getParticipantes() {
-	    return participantes;
+	public Sala() {
 	}
 
-	public void setParticipantes(List<Usuario> participantes) {
-	    this.participantes = participantes;
-	}
-
-
-	public Formulario getFormulario() {
-		return formulario;
-	}
-
-	public void setFormulario(Formulario formulario) {
-		this.formulario = formulario;
-	}
-
+	
 	public Long getIdSala() {
 		return idSala;
 	}
 
 	public void setIdSala(Long idSala) {
 		this.idSala = idSala;
+	}
+
+	public String getCodigoSala() {
+		return codigoSala;
+	}
+
+	public void setCodigoSala(String codigoSala) {
+		this.codigoSala = codigoSala;
 	}
 
 	public Long getIdUsuario() {
@@ -124,5 +107,21 @@ public class Sala {
 
 	public void setStatusSala(StatusSala statusSala) {
 		this.statusSala = statusSala;
+	}
+
+    public List<Usuario> getParticipantes() {
+	    return participantes;
+	}
+
+	public void setParticipantes(List<Usuario> participantes) {
+	    this.participantes = participantes;
+	}
+
+	public Formulario getFormulario() {
+		return formulario;
+	}
+
+	public void setFormulario(Formulario formulario) {
+		this.formulario = formulario;
 	}
 }

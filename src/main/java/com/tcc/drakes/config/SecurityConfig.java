@@ -1,6 +1,5 @@
 package com.tcc.drakes.config;
 
-import com.tcc.drakes.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder; // Mantenha
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.tcc.drakes.security.AtualizarAtividadeUsuarioFilter;
+import com.tcc.drakes.security.JwtAuthenticationFilter;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -25,6 +27,10 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+    
+    @Autowired
+    private AtualizarAtividadeUsuarioFilter atualizarAtividadeUsuarioFilter;
+    
     @Autowired
     private UserDetailsService userDetailsService;
     
