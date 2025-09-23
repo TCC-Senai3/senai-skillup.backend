@@ -9,7 +9,7 @@ public class UsuarioPerfilDTO {
 
 	private String nome;
 	private String biografia;
-	private int pontuacao;
+	private Long pontuacao;
 
 
 	private boolean online;
@@ -50,11 +50,11 @@ public class UsuarioPerfilDTO {
 		this.biografia = biografia;
 	}
 
-	public int getPontuacao() {
+	public Long getPontuacao() {
 		return pontuacao;
 	}
 
-	public void setPontuacao(int pontuacao) {
+	public void setPontuacao(Long pontuacao) {
 		this.pontuacao = pontuacao;
 	}
 	

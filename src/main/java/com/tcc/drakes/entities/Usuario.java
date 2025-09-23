@@ -35,8 +35,8 @@ public class Usuario implements UserDetails {
 	private String senha;
 	private String biografia;
 
-	private int pontuacao = 0;
-	
+	private Long pontuacao = 0L; 
+
 	@Column(name = "data_ultima_atividade")
 	private LocalDateTime dataUltimaAtividade;
 
@@ -50,7 +50,7 @@ public class Usuario implements UserDetails {
 	public Usuario() {
 	}
 
-	public Usuario(long id, String nome, String email, String senha, String biografia, int pontuacao) {
+	public Usuario(long id, String nome, String email, String senha, String biografia, Long pontuacao) {
 		this.id = id;
 		this.nome = nome;
 		this.email = email;
@@ -146,11 +146,11 @@ public class Usuario implements UserDetails {
 		this.biografia = biografia;
 	}
 
-	public int getPontuacao() {
+	public Long getPontuacao() {
 		return pontuacao;
 	}
 
-	public void setPontuacao(int pontuacao) {
+	public void setPontuacao(Long pontuacao) {
 		this.pontuacao = pontuacao;
 	}
 
@@ -170,10 +170,16 @@ public class Usuario implements UserDetails {
 		this.roles = roles;
 	}
 
-	public void incrementarPontuacao() {
-		this.pontuacao += 1;
-	}
 	
+	public void adicionarPontos(Long pontos) {
+	    if (this.pontuacao == null) {
+	        this.pontuacao = 0L;
+	    }
+	    if (pontos != null && pontos > 0) {
+	        this.pontuacao += pontos;
+	    }
+	}
+
 	public LocalDateTime getDataUltimaAtividade() {
 		return dataUltimaAtividade;
 	}

@@ -5,9 +5,9 @@ public class UsuarioListaDTO {
 
     private Long id;
     private String nome;
-    private int pontuacao;
+    private Long pontuacao;
 
-    public UsuarioListaDTO(Long id, String nome, int pontuacao) {
+    public UsuarioListaDTO(Long id, String nome, Long pontuacao) {
         this.id = id;
         this.nome = nome;
         this.pontuacao = pontuacao;
@@ -29,11 +29,11 @@ public class UsuarioListaDTO {
         this.nome = nome;
     }
 
-    public int getPontuacao() {
+    public Long getPontuacao() {
         return pontuacao;
     }
 
-    public void setPontuacao(int pontuacao) {
+    public void setPontuacao(Long pontuacao) {
         this.pontuacao = pontuacao;
     }
 }
