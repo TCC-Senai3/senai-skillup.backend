@@ -70,9 +70,15 @@ public class Ranking {
    
 
     
-    public void incrementarPontuacao() {
-        this.pontuacao++;
+   // public void incrementarPontuacao() {
+     //   this.pontuacao++;
        
+   // }
+    
+    public void adicionarPontos(Long pontos) {
+        if (pontos > 0) {
+            this.pontuacao += pontos;
+        }
     }
 
 	

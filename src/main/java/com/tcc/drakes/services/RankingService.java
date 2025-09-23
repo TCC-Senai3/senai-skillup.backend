@@ -1,5 +1,12 @@
 package com.tcc.drakes.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; 
+
 import com.tcc.drakes.dtos.RankingDTO;
 import com.tcc.drakes.entities.Ranking;
 import com.tcc.drakes.entities.Sala;
@@ -7,13 +14,6 @@ import com.tcc.drakes.entities.Usuario;
 import com.tcc.drakes.repositories.RankingRepository;
 import com.tcc.drakes.repositories.SalaRepository;
 import com.tcc.drakes.repositories.UsuarioRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Importe a anotação @Transactional
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RankingService {
@@ -43,7 +43,7 @@ public class RankingService {
 
     
     @Transactional 
-    public void adicionarPontuacao(Long idUsuario, Long idSala) {
+    public void adicionarPontuacao(Long idUsuario, Long idSala, Long pontosParaAdicionar) {
         
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -56,8 +56,11 @@ public class RankingService {
             ranking = new Ranking(usuario, sala);
         }
 
-        ranking.incrementarPontuacao(); 
-        usuario.incrementarPontuacao(); 
+        //ranking.incrementarPontuacao(); 
+       // usuario.incrementarPontuacao(); 
+        
+        ranking.adicionarPontos(pontosParaAdicionar);
+        usuario.adicionarPontos(pontosParaAdicionar);
 
         
         rankingRepository.save(ranking);

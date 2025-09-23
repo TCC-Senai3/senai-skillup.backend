@@ -5,8 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-// É uma boa prática usar a anotação @Transactional do Spring
-import org.springframework.transaction.annotation.Transactional; 
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tcc.drakes.dtos.RespostaDTO;
 import com.tcc.drakes.entities.Alternativa;
@@ -44,8 +43,6 @@ public class RespostaService {
 	@Transactional
 	public RespostaDTO salvarResposta(RespostaDTO dto) {
 		
-		//System.out.println("--- DEBUG: [RespostaService] Iniciando salvamento de resposta para o usuário ID: " + dto.getIdUsuario());
-
 		Usuario usuario = usuarioRepository.findById(dto.getIdUsuario())
 				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -60,15 +57,29 @@ public class RespostaService {
 
 		boolean correta = alternativa.isCorreta();
 
-		
-		//System.out.println("--- DEBUG: [RespostaService] Alternativa ID " + alternativa.getIdAlternativa() + " é correta? " + correta);
-
 		if (correta) {
-			//System.out.println("--- DEBUG: [RespostaService] RESPOSTA CORRETA! Chamando rankingService.adicionarPontuacao...");
-			rankingService.adicionarPontuacao(dto.getIdUsuario(), dto.getIdSala());
-			//System.out.println("--- DEBUG: [RespostaService] rankingService.adicionarPontuacao FOI EXECUTADO.");
-		} else {
-			//System.out.println("--- DEBUG: [RespostaService] Resposta INCORRETA. Nenhuma pontuação será adicionada.");
+			
+
+			long pontuacaoMaxima = 100L;
+			long pontuacaoMinima = 50L; 
+			
+			Integer tempoGasto = dto.getTempoGasto() != null ? dto.getTempoGasto() : 0;
+			
+			
+			long penalidade = (tempoGasto / 2) * 10L;
+			
+			
+			long pontuacaoFinal = pontuacaoMaxima - penalidade;
+			
+			
+			if (pontuacaoFinal < pontuacaoMinima) {
+				pontuacaoFinal = pontuacaoMinima;
+			}
+			
+			
+			rankingService.adicionarPontuacao(dto.getIdUsuario(), dto.getIdSala(), pontuacaoFinal);
+			
+			
 		}
 
 		Resposta resposta = new Resposta();
@@ -81,8 +92,6 @@ public class RespostaService {
 
 		Resposta respostaSalva = respostaRepository.save(resposta);
 		
-		//System.out.println("--- DEBUG: [RespostaService] Resposta salva no banco de dados com sucesso.");
-
 		return new RespostaDTO(respostaSalva);
 	}
 

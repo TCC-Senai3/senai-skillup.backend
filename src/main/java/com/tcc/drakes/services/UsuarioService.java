@@ -113,6 +113,6 @@ public class UsuarioService implements UserDetailsService {
 		Usuario usuario = usuarioRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
 		
-		return new UsuarioPerfilDTO(usuario); // Converte o Usuario para UsuarioPerfilDTO
+		return new UsuarioPerfilDTO(usuario); 
 	}
 }
