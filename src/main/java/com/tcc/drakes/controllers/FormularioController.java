@@ -3,6 +3,7 @@ package com.tcc.drakes.controllers;
 import com.tcc.drakes.dtos.FormularioDTO;
 import com.tcc.drakes.services.FormularioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,5 +42,11 @@ public class FormularioController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         formularioService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @PostMapping("/completo")
+    public ResponseEntity<FormularioDTO> createCompleto(@RequestBody FormularioDTO dto) {
+        FormularioDTO formularioSalvo = formularioService.criarFormularioCompleto(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(formularioSalvo);
     }
 }
