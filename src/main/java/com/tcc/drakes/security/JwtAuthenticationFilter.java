@@ -15,8 +15,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
-@Component
+//@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -32,58 +34,63 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-       
-      //  System.out.println(">>> [FILTRO JWT] Etapa 1: Filtro iniciado para a rota: " + request.getRequestURI());
-      
-
-        String path = request.getRequestURI();
-        if ("/usuarios/cadastro".equals(path) || "/usuarios/login".equals(path)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        jwt = authHeader.substring(7);
-       
-      //  System.out.println(">>> [FILTRO JWT] Etapa 2: Token extraído do cabeçalho.");
-        
-
-        userEmail = jwtUtil.extractEmail(jwt);
-      
-       // System.out.println(">>> [FILTRO JWT] Etapa 3: E-mail extraído do token: " + userEmail);
-        
-
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-           
-           // System.out.println(">>> [FILTRO JWT] Etapa 4: UserDetails carregado para o usuário: " + userDetails.getUsername());
+        // <<< INÍCIO DO BLOCO TRY-CATCH PARA DEBUG >>>
+        try {
+            List<String> publicRoutes = Arrays.asList(
+                    "/usuarios/cadastro",
+                    "/usuarios/login",
+                    "/senha/esqueceu",
+                    "/senha/reset"
+            );
             
+            List<String> publicPrefixes = Arrays.asList(
+                    "/api/swagger-ui",
+                    "/api/v3/api-docs",
+                    "/swagger-ui",
+                    "/v3/api-docs"
+            );
 
-            if (jwtUtil.validateToken(jwt)) {
-              
-               // System.out.println(">>> [FILTRO JWT] Etapa 5: Token validado com sucesso. Autenticando usuário.");
-               
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            } else {
-              
-                 //System.out.println(">>> [FILTRO JWT] ERRO: A validação do token falhou!");
-                 
+            String path = request.getRequestURI();
+
+            boolean isPublicRoute = publicRoutes.contains(path) || publicPrefixes.stream().anyMatch(p -> path.startsWith(p));
+            
+            if (isPublicRoute) {
+                filterChain.doFilter(request, response);
+                return;
             }
+        
+            final String authHeader = request.getHeader("Authorization");
+            final String jwt;
+            final String userEmail;
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            jwt = authHeader.substring(7);
+            userEmail = jwtUtil.extractEmail(jwt);
+
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+
+                if (jwtUtil.validateToken(jwt)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+            filterChain.doFilter(request, response);
+
+        } catch (Exception e) {
+            System.err.println("\n!!!!!!!!!! EXCEÇÃO CAPTURADA NO JwtAuthenticationFilter !!!!!!!!!!\n");
+            e.printStackTrace(); // Imprime o erro completo no console
+            throw e; // Relança a exceção
         }
-        filterChain.doFilter(request, response);
+        // <<< FIM DO BLOCO TRY-CATCH >>>
     }
 }

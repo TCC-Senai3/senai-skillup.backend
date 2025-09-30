@@ -1,10 +1,7 @@
 package com.tcc.drakes.config;
 
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tcc.drakes.security.AtualizarAtividadeUsuarioFilter;
+import com.tcc.drakes.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,72 +17,91 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.tcc.drakes.security.AtualizarAtividadeUsuarioFilter;
-import com.tcc.drakes.security.JwtAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-    
-    @Autowired
-    private AtualizarAtividadeUsuarioFilter atualizarAtividadeUsuarioFilter;
-    
-    @Autowired
-    private UserDetailsService userDetailsService;
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public AtualizarAtividadeUsuarioFilter atualizarAtividadeUsuarioFilter() {
+        return new AtualizarAtividadeUsuarioFilter();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            AuthenticationProvider authenticationProvider,
+            JwtAuthenticationFilter jwtAuthFilter,
+            AtualizarAtividadeUsuarioFilter atividadeUsuarioFilter
+    ) throws Exception {
+
         return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ADICIONADO: Habilita e configura o CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/usuarios/cadastro").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/formularios").hasAuthority("CRIAR_FORMULARIO")
-                        .requestMatchers(HttpMethod.POST, "/temas").hasAuthority("CRIAR_FORMULARIO")
-                        .requestMatchers(HttpMethod.POST, "/perguntas").hasAuthority("CRIAR_FORMULARIO")
-                        .requestMatchers(HttpMethod.POST, "/alternativas").hasAuthority("CRIAR_FORMULARIO")
-                        .requestMatchers(HttpMethod.POST, "/salas").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/respostas").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/senha/esqueceu").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/senha/reset").permitAll()
+                        // 1. Rotas Públicas (Swagger, Login, Cadastro, etc.)
+                        .requestMatchers(
+                                "/api/swagger-ui/**",
+                                "/api/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, 
+                                "/usuarios/cadastro", 
+                                "/usuarios/login", 
+                                "/salas", 
+                                "/respostas", 
+                                "/senha/esqueceu", 
+                                "/senha/reset"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/relatorios/usuarios").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").permitAll()
+                        
+                        // 2. Rotas Protegidas por Permissão (Authority)
+                        .requestMatchers(HttpMethod.POST, 
+                                "/formularios", 
+                                "/temas", 
+                                "/perguntas", 
+                                "/alternativas"
+                        ).hasAuthority("CRIAR_FORMULARIO")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        
+                        // 3. Qualquer outra requisição deve ser autenticada
                         .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(atividadeUsuarioFilter, JwtAuthenticationFilter.class)
                 .build();
     }
-    
-    
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*")); 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")); 
-        configuration.setAllowedHeaders(Arrays.asList("*")); 
-        
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); 
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder); 
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 
@@ -93,5 +109,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
 }
