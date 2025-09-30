@@ -71,6 +71,7 @@ public class SecurityConfig {
                         // 2. Rotas Protegidas por Permissão (Authority)
                         .requestMatchers(HttpMethod.POST, 
                                 "/formularios", 
+                                "/formularios/completo",
                                 "/temas", 
                                 "/perguntas", 
                                 "/alternativas"
