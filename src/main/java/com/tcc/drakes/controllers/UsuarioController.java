@@ -38,20 +38,31 @@ public class UsuarioController {
         return usuarioService.criarUsuario(usuarioDTO);
     }
 
-    // Endpoint para login
-    //@PostMapping("/login")
-  //  public String login(@RequestBody LoginDTO loginDTO) {
-       // return usuarioService.login(loginDTO)
-        //        .map(usuario -> "Login realizado com sucesso!")
-        //        .orElse("Credenciais inválidas");
-   // }
-    
-    @PostMapping("/login")
+    /* * Endpoint de login original que retorna o token JWT.
+     * @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         try {
             String token = usuarioService.loginComJwt(loginDTO);
             return ResponseEntity.ok().body(new AuthResponseDTO(token));
         } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+        }
+    }
+    */
+    
+    /**
+     * Endpoint de login alternativo para ambiente de desenvolvimento.
+     * Este método não gera um token JWT, apenas verifica se as credenciais são válidas.
+     * @param loginDTO Objeto com email e senha do usuário.
+     * @return Uma string indicando se o login foi "Login válido" ou "Credenciais inválidas".
+     */
+    @PostMapping("/login")
+    public ResponseEntity<String> loginParaDesenvolvimento(@RequestBody LoginDTO loginDTO) {
+        try {
+            usuarioService.loginComJwt(loginDTO);
+            return ResponseEntity.ok("Login válido");
+        } catch (RuntimeException e) {
+           
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
         }
     }
@@ -83,3 +94,4 @@ public class UsuarioController {
 	}
     
 }
+

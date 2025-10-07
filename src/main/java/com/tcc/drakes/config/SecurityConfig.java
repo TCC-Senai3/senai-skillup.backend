@@ -52,8 +52,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // 1. Rotas Públicas (Swagger, Login, Cadastro, etc.)
                         .requestMatchers(
-                                "/api/swagger-ui/**",
-                                "/api/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
