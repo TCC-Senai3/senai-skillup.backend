@@ -1,11 +1,11 @@
 package com.tcc.drakes.entities;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column; 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -13,8 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -34,25 +33,21 @@ public class Sala {
 	private String nomeSala;
 	private LocalDate dataCriacao;
 	
-	@OneToOne(cascade = CascadeType.ALL) 
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_formulario")
 	private Formulario formulario;
 
 	@Enumerated(EnumType.STRING)
 	private StatusSala statusSala;
 	
-	@ManyToMany
-	@JoinTable(
-	    name = "tb_sala_usuario",
-	    joinColumns = @JoinColumn(name = "sala_id"),
-	    inverseJoinColumns = @JoinColumn(name = "usuario_id")
-	)
-	private List<Usuario> participantes = new ArrayList<>();
+	// RELACIONAMENTO CORRIGIDO
+	@OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<SalaUsuario> participantes = new HashSet<>();
 
 	public Sala() {
 	}
 
-	
+	// Getters e Setters
 	public Long getIdSala() {
 		return idSala;
 	}
@@ -109,19 +104,20 @@ public class Sala {
 		this.statusSala = statusSala;
 	}
 
-    public List<Usuario> getParticipantes() {
-	    return participantes;
-	}
-
-	public void setParticipantes(List<Usuario> participantes) {
-	    this.participantes = participantes;
-	}
-
 	public Formulario getFormulario() {
 		return formulario;
 	}
 
 	public void setFormulario(Formulario formulario) {
 		this.formulario = formulario;
+	}
+	
+	// GETTERS E SETTERS CORRIGIDOS
+	public Set<SalaUsuario> getParticipantes() {
+		return participantes;
+	}
+
+	public void setParticipantes(Set<SalaUsuario> participantes) {
+		this.participantes = participantes;
 	}
 }

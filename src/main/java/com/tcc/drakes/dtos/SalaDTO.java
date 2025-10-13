@@ -10,14 +10,13 @@ import com.tcc.drakes.entities.StatusSala;
 public class SalaDTO {
 
     private Long idSala;
-    private String codigoSala; 
+    private String codigoSala;
     private Long idUsuario;
     private Long idTema;
     private String nomeSala;
     private LocalDate dataCriacao;
     private StatusSala statusSala;
-
-    private Long idFormulario; 
+    private Long idFormulario;
     private List<Long> idParticipantes;
 
     public SalaDTO() {
@@ -25,7 +24,7 @@ public class SalaDTO {
 
     public SalaDTO(Sala entity) {
         this.idSala = entity.getIdSala();
-        this.codigoSala = entity.getCodigoSala(); 
+        this.codigoSala = entity.getCodigoSala();
         this.idUsuario = entity.getIdUsuario();
         this.idTema = entity.getIdTema();
         this.nomeSala = entity.getNomeSala();
@@ -36,15 +35,16 @@ public class SalaDTO {
             this.idFormulario = entity.getFormulario().getIdFormulario();
         }
 
+        // Bloco corrigido
         if (entity.getParticipantes() != null) {
             this.idParticipantes = entity.getParticipantes()
-                .stream()
-                .map(p -> p.getId())
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(salaUsuario -> salaUsuario.getUsuario().getId()) // Correção aqui
+                    .collect(Collectors.toList());
         }
     }
-    
 
+    // O resto da classe (getters e setters) permanece o mesmo...
 
     public Long getIdSala() {
         return idSala;
@@ -53,7 +53,6 @@ public class SalaDTO {
     public void setIdSala(Long idSala) {
         this.idSala = idSala;
     }
-
 
     public String getCodigoSala() {
         return codigoSala;

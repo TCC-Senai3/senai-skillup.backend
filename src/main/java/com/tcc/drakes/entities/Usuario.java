@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -35,7 +36,7 @@ public class Usuario implements UserDetails {
 	private String senha;
 	private String biografia;
 
-	private Long pontuacao = 0L; 
+	private Long pontuacao = 0L;
 
 	@Column(name = "data_ultima_atividade")
 	private LocalDateTime dataUltimaAtividade;
@@ -46,6 +47,10 @@ public class Usuario implements UserDetails {
 
 	@OneToMany(mappedBy = "usuario")
 	private List<Resposta> respostas;
+	
+	// RELACIONAMENTO ADICIONADO PARA CONSISTÊNCIA
+	@OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SalaUsuario> salasParticipadas = new HashSet<>();
 
 	public Usuario() {
 	}
@@ -63,17 +68,13 @@ public class Usuario implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		for (Role role : this.roles) {
-
 			authorities.add(new SimpleGrantedAuthority(role.getNome()));
-
 			for (Permissao permissao : role.getPermissoes()) {
 				authorities.add(new SimpleGrantedAuthority(permissao.getNome()));
 			}
 		}
-
 		return authorities;
 	}
-
 
 	@Override
 	public String getPassword() {
@@ -169,7 +170,6 @@ public class Usuario implements UserDetails {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-
 	
 	public void adicionarPontos(Long pontos) {
 	    if (this.pontuacao == null) {
@@ -187,4 +187,13 @@ public class Usuario implements UserDetails {
 	public void setDataUltimaAtividade(LocalDateTime dataUltimaAtividade) {
 		this.dataUltimaAtividade = dataUltimaAtividade;
 	}
+	
+	// GETTER E SETTER PARA O NOVO RELACIONAMENTO
+	public Set<SalaUsuario> getSalasParticipadas() {
+        return salasParticipadas;
+    }
+
+    public void setSalasParticipadas(Set<SalaUsuario> salasParticipadas) {
+        this.salasParticipadas = salasParticipadas;
+    }
 }
