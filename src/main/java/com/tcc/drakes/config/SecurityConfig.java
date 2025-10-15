@@ -55,7 +55,8 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/hello-world/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, 
                                 "/usuarios/cadastro", 
