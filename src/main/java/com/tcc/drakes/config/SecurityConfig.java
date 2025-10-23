@@ -67,7 +67,8 @@ public class SecurityConfig {
                                 "/senha/reset"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/relatorios/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia"
+                        		+ "/salas**").permitAll()
                         
                         // 2. Rotas Protegidas por Permissão (Authority)
                         .requestMatchers(HttpMethod.POST, 

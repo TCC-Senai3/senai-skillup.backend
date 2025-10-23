@@ -52,6 +52,12 @@ public class SalaController {
         salaService.delete(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @PutMapping("/{id}/fechar")
+    public ResponseEntity<SalaDTO> fecharSala(@PathVariable Long id) {
+        SalaDTO salaFechada = salaService.fecharSala(id);
+        return ResponseEntity.ok(salaFechada);
+    }
 
     @PostMapping("{codigoSala}/entrar/{idUsuario}")
     public ResponseEntity<String> entrarNaSala(

@@ -40,7 +40,7 @@ public class Sala {
 	@Enumerated(EnumType.STRING)
 	private StatusSala statusSala;
 	
-	// RELACIONAMENTO CORRIGIDO
+
 	@OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<SalaUsuario> participantes = new HashSet<>();
 
