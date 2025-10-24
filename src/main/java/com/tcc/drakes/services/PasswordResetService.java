@@ -48,7 +48,7 @@ public class PasswordResetService {
         tokenRepository.save(meuToken);
 
         
-        String resetLink = "token=" + tokenValue;
+        String resetLink = "http://localhost:3000/ResetPassword?token=" + tokenValue;
 
      
         String assunto = "Instruções para Redefinição de Senha";
