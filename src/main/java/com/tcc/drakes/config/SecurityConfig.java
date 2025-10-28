@@ -70,7 +70,6 @@ public class SecurityConfig {
                         // ATENÇÃO: PUT /usuarios/{id}/biografia e /salas** como permitAll parece inseguro. Mude se necessário.
                         .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia", "/salas**").permitAll()
 
-                        // --- CORREÇÕES APLICADAS AQUI ---
                         // 2. Rotas que exigem apenas Autenticação (Qualquer usuário logado)
                         .requestMatchers(HttpMethod.GET, "/formularios").authenticated() // Listar formulários
                         .requestMatchers(HttpMethod.POST, "/respostas").authenticated() // Enviar resposta

@@ -13,8 +13,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne; // 1. IMPORT CORRIGIDO
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+// import jakarta.persistence.OneToOne; // 2. REMOVIDO
 import jakarta.persistence.Table;
 
 @Entity
@@ -33,7 +34,10 @@ public class Sala {
 	private String nomeSala;
 	private LocalDate dataCriacao;
 	
-	@OneToOne(cascade = CascadeType.ALL)
+    // ****** CORREÇÃO AQUI ******
+    // 3. Mudado de @OneToOne para @ManyToOne
+    // 4. Removido o CascadeType.ALL (você não quer deletar o formulário se deletar a sala)
+	@ManyToOne 
 	@JoinColumn(name = "id_formulario")
 	private Formulario formulario;
 
