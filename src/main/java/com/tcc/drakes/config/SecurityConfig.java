@@ -24,105 +24,97 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Mantém, caso use anotações em Services ou Controllers
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
-    }
+	@Bean
+	public JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter();
+	}
 
-    @Bean
-    public AtualizarAtividadeUsuarioFilter atualizarAtividadeUsuarioFilter() {
-        return new AtualizarAtividadeUsuarioFilter();
-    }
+	@Bean
+	public AtualizarAtividadeUsuarioFilter atualizarAtividadeUsuarioFilter() {
+		return new AtualizarAtividadeUsuarioFilter();
+	}
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            AuthenticationProvider authenticationProvider,
-            JwtAuthenticationFilter jwtAuthFilter,
-            AtualizarAtividadeUsuarioFilter atividadeUsuarioFilter
-    ) throws Exception {
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider,
+			JwtAuthenticationFilter jwtAuthFilter, AtualizarAtividadeUsuarioFilter atividadeUsuarioFilter)
+			throws Exception {
 
-        return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable()) // CSRF desabilitado, comum para APIs REST com JWT
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API Stateless
-                .authorizeHttpRequests(authorize -> authorize
-                        // 1. Rotas Públicas (Swagger, Login, Cadastro, Recuperação de Senha)
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/hello-world/**" // Exemplo, pode remover se não usar
-                        ).permitAll()
+		return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.csrf(csrf -> csrf.disable())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(authorize -> authorize
+						// 1. Rotas Públicas
+						.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/hello-world/**")
+						.permitAll()
+						.requestMatchers(HttpMethod.POST, "/usuarios/cadastro", "/usuarios/login", "/senha/esqueceu", "/senha/reset")
+						.permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ranking/geral")
+                        .permitAll()
+                        // MANTIDO, mas idealmente deveria ter segurança no Service
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").authenticated() 
+
+						// 2. Rotas Autenticadas (Qualquer usuário logado)
+						.requestMatchers(HttpMethod.GET,
+                            "/formularios",
+                            "/salas/codigo/{codigo}",
+                            "/usuarios/me",
+                            "/usuarios/{id}"
+                        ).authenticated()
                         .requestMatchers(HttpMethod.POST,
-                                "/usuarios/cadastro",
-                                "/usuarios/login",
-                                "/senha/esqueceu",
-                                "/senha/reset"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/relatorios/usuarios", // Ranking geral talvez?
-                                "/ranking/geral"       // Ranking geral
-                        ).permitAll()
-                        // ATENÇÃO: PUT /usuarios/{id}/biografia e /salas** como permitAll parece inseguro. Mude se necessário.
-                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia", "/salas**").permitAll()
+                            "/respostas",
+                            "/salas",
+                            "/salas/{codigoSala}/entrar/{idUsuario}"
+                         ).authenticated()
+						.requestMatchers(HttpMethod.PUT,
+                            "/salas/{id}/fechar", // Fechar sala (dono)
+                            "/usuarios/{id}"      // Atualizar perfil geral (COM SEGURANÇA NO SERVICE!)
+                        ).authenticated()
 
-                        // 2. Rotas que exigem apenas Autenticação (Qualquer usuário logado)
-                        .requestMatchers(HttpMethod.GET, "/formularios").authenticated() // Listar formulários
-                        .requestMatchers(HttpMethod.POST, "/respostas").authenticated() // Enviar resposta
-                        .requestMatchers(HttpMethod.POST, "/salas").authenticated()    // Criar sala
-                        .requestMatchers(HttpMethod.POST, "/salas/{codigoSala}/entrar/{idUsuario}").authenticated() // Entrar na sala
-                        .requestMatchers(HttpMethod.GET, "/salas/codigo/{codigo}").authenticated() // Buscar sala por código
-                        .requestMatchers(HttpMethod.GET, "/usuarios/me").authenticated() // Buscar perfil próprio
+						// ****** REGRA ADICIONADA AQUI ******
+						.requestMatchers(HttpMethod.DELETE, "/salas/{codigoSala}/sair/{idUsuario}")
+                        .authenticated() // <-- PERMITIR SAIR DA SALA
 
-                        // 3. Rotas Protegidas por Autoridade Específica (Roles/Authorities)
-                        .requestMatchers(HttpMethod.POST,
-                                "/formularios",
-                                "/formularios/completo",
-                                "/temas",
-                                "/perguntas",
-                                "/alternativas"
-                        ).hasAuthority("ROLE_CRIADOR_FORMULARIO") // <<< Usando ROLE_ prefix consistentemente
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // <<< Usando ROLE_ prefix
+						// 3. Rotas Protegidas por Autoridade Específica
+						.requestMatchers(HttpMethod.POST, "/formularios", "/formularios/completo", "/temas", "/perguntas", "/alternativas")
+						.hasAuthority("ROLE_CRIADOR_FORMULARIO")
+						.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 
-                        // 4. Qualquer outra requisição não listada acima deve ser autenticada
-                        .anyRequest().authenticated()
-                        // --- FIM DAS CORREÇÕES ---
+						// 4. Qualquer outra requisição deve ser autenticada
+						.anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider)
-                // Adiciona os filtros na ordem correta
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(atividadeUsuarioFilter, JwtAuthenticationFilter.class)
+				.authenticationProvider(authenticationProvider)
+				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+				.addFilterAfter(atividadeUsuarioFilter, JwtAuthenticationFilter.class)
                 .build();
-    }
+	}
 
-    // Configuração CORS (parece ok, permite tudo de qualquer origem)
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*")); // Permite qualquer origem
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")); // Métodos permitidos
-        configuration.setAllowedHeaders(Arrays.asList("*")); // Permite qualquer header
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Aplica a configuração a todas as rotas
-        return source;
-    }
+	// Configuração CORS (Mantida)
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("*"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 
-    // Provedor de Autenticação (usa UserDetailsService e PasswordEncoder)
-    @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Serviço que busca o usuário pelo username
-        authProvider.setPasswordEncoder(passwordEncoder);       // Bean que sabe como verificar a senha
-        return authProvider;
-    }
+	// AuthenticationProvider (Mantido)
+	@Bean
+	public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+		authProvider.setUserDetailsService(userDetailsService);
+		authProvider.setPasswordEncoder(passwordEncoder);
+		return authProvider;
+	}
 
-    // Gerenciador de Autenticação (necessário para o processo de login)
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+	// AuthenticationManager (Mantido)
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
+	}
 }
