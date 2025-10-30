@@ -132,5 +132,7 @@ public class SalaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno ao tentar sair da sala.");
         }
     }
+    
+    
 
 }
