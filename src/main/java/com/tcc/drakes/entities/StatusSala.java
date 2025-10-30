@@ -4,6 +4,7 @@ public enum StatusSala {
 	
 	DISPONIVEL,
 	FECHADA,
-	CHEIA;
+	CHEIA, 
+	INICIADA;
 
 }

@@ -1,17 +1,17 @@
-package com.tcc.drakes.config; 
+//package com.tcc.drakes.config; 
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+//import org.springframework.context.annotation.Configuration;
+//import org.springframework.web.servlet.config.annotation.CorsRegistry;
+//import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
-public class WebConfig implements WebMvcConfigurer {
+//@Configuration
+//public class WebConfig implements WebMvcConfigurer {
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") 
-            .allowedOrigins("*") 
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT") // Métodos permitidos
-            .allowedHeaders("*"); 
-    }
-}
+    //@Override
+   // public void addCorsMappings(CorsRegistry registry) {
+       // registry.addMapping("/**") 
+        //    .allowedOrigins("*") 
+         //   .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT") // Métodos permitidos
+        //    .allowedHeaders("*"); 
+ //   }
+//}

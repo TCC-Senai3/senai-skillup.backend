@@ -20,7 +20,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -42,66 +45,80 @@ public class SecurityConfig {
 			JwtAuthenticationFilter jwtAuthFilter, AtualizarAtividadeUsuarioFilter atividadeUsuarioFilter)
 			throws Exception {
 
-		return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+		return http
+				.cors(cors -> cors.configurationSource(corsConfigurationSource())) 
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(authorize -> authorize
-						// 1. Rotas Públicas
-						.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/hello-world/**")
-						.permitAll()
-						.requestMatchers(HttpMethod.POST, "/usuarios/cadastro", "/usuarios/login", "/senha/esqueceu", "/senha/reset")
-						.permitAll()
-                        .requestMatchers(HttpMethod.GET, "/ranking/geral")
-                        .permitAll()
-                        // MANTIDO, mas idealmente deveria ter segurança no Service
-                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").authenticated() 
+						
+						// Rotas Públicas/WebSocket (Permitidas primeiro)
+						.requestMatchers("/ws/**").permitAll() 
+						
+						// 1. Outras Rotas Públicas
+						.requestMatchers(
+								"/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/hello-world/**"
+						).permitAll()
+						.requestMatchers(HttpMethod.POST,
+								"/usuarios/cadastro", "/usuarios/login", "/senha/esqueceu", "/senha/reset"
+						).permitAll()
+						.requestMatchers(HttpMethod.GET, "/ranking/geral").permitAll()
 
-						// 2. Rotas Autenticadas (Qualquer usuário logado)
+						// 2. Rotas Autenticadas (Qualquer ROLE)
+						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").authenticated()
 						.requestMatchers(HttpMethod.GET,
-                            "/formularios",
-                            "/salas/codigo/{codigo}",
-                            "/usuarios/me",
-                            "/usuarios/{id}"
-                        ).authenticated()
-                        .requestMatchers(HttpMethod.POST,
-                            "/respostas",
-                            "/salas",
-                            "/salas/{codigoSala}/entrar/{idUsuario}"
-                         ).authenticated()
+								"/formularios", "/salas/codigo/{codigo}", "/usuarios/me", "/usuarios/{id}"
+						).authenticated()
+						.requestMatchers(HttpMethod.POST,
+								"/respostas", "/salas", "/salas/{codigoSala}/entrar/{idUsuario}" 
+						).authenticated()
 						.requestMatchers(HttpMethod.PUT,
-                            "/salas/{id}/fechar", // Fechar sala (dono)
-                            "/usuarios/{id}"      // Atualizar perfil geral (COM SEGURANÇA NO SERVICE!)
-                        ).authenticated()
-
-						// ****** REGRA ADICIONADA AQUI ******
+								"/salas/{id}/fechar", "/usuarios/{id}"
+						).authenticated()
 						.requestMatchers(HttpMethod.DELETE, "/salas/{codigoSala}/sair/{idUsuario}")
-                        .authenticated() // <-- PERMITIR SAIR DA SALA
+						.authenticated()
 
-						// 3. Rotas Protegidas por Autoridade Específica
+						// 3. Rotas Protegidas por Autoridade (Roles Específicas)
 						.requestMatchers(HttpMethod.POST, "/formularios", "/formularios/completo", "/temas", "/perguntas", "/alternativas")
 						.hasAuthority("ROLE_CRIADOR_FORMULARIO")
 						.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 
-						// 4. Qualquer outra requisição deve ser autenticada
+						// 4. Qualquer outra requisição
 						.anyRequest().authenticated()
-                )
+				)
 				.authenticationProvider(authenticationProvider)
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterAfter(atividadeUsuarioFilter, JwtAuthenticationFilter.class)
-                .build();
+				.build();
 	}
 
-	// Configuração CORS (Mantida)
+	
+	// --- CORREÇÃO DE CORS PARA PRODUÇÃO/WEBSOCKET ---
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("*"));
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
+		
+		// ✅ CORREÇÃO 1: Removida a barra final da URL do Vercel
+		configuration.setAllowedOrigins(Arrays.asList(
+				"http://localhost:3000", 
+				"https://senaiskillup.vercel.app" // Sem a barra final "/"
+		));
+		
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+		
+		// ✅ CORREÇÃO 2: Voltado para "*" para garantir que nenhum header do SockJS seja bloqueado
 		configuration.setAllowedHeaders(Arrays.asList("*"));
+		
+		// Essencial para SockJS / credenciais
+		configuration.setAllowCredentials(true); 
+		
+		// Opcional, mas boa prática
+		configuration.setExposedHeaders(Arrays.asList("Authorization"));
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
+	// --- FIM DA CORREÇÃO ---
 
 	// AuthenticationProvider (Mantido)
 	@Bean
