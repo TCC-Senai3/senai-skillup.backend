@@ -38,7 +38,7 @@ public class SalaService {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate; // Para enviar mensagens via WebSocket
 
-    // --- Métodos Existentes ---
+    // --- Métodos Existentes (Sem Alterações) ---
     public List<SalaDTO> findAll() {
         List<Sala> salas = repository.findAll();
         return salas.stream().map(SalaDTO::new).collect(Collectors.toList());
@@ -60,20 +60,15 @@ public class SalaService {
     public SalaDTO insert(SalaDTO dto) {
         Sala sala = new Sala();
         copyDtoToEntity(dto, sala);
-
         final long idUsuarioCriador = sala.getIdUsuario();
-
         usuarioRepository.findById(idUsuarioCriador)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário criador com ID " + idUsuarioCriador + " não encontrado."));
-
         if (sala.getFormulario() == null) {
             throw new RuntimeException("ID do formulário é obrigatório.");
         }
-
         sala.setDataCriacao(LocalDate.now());
         sala.setCodigoSala(gerarCodigoUnico());
         sala.setStatusSala(StatusSala.DISPONIVEL);
-
         sala = repository.save(sala);
         return new SalaDTO(sala);
     }
@@ -113,40 +108,30 @@ public class SalaService {
         return new SalaDTO(sala);
     }
 
-    // =========================================================================
-    // ✅ NOVO MÉTODO: INICIAR SALA
-    // =========================================================================
+    // Método 'iniciarSala' (Sem Alterações)
     @Transactional
     public Sala iniciarSala(String codigoSala, Long idUsuario) {
         Sala sala = repository.findByCodigoSala(codigoSala)
                 .orElseThrow(() -> new EntityNotFoundException("Sala com o código '" + codigoSala + "' não encontrada"));
-
-        // Somente o dono pode iniciar
         if (!sala.getIdUsuario().equals(idUsuario)) {
             throw new IllegalStateException("Apenas o dono da sala pode iniciar o jogo.");
         }
-
-        if (sala.getStatusSala() == StatusSala.INICIADA) {
+        if (sala.getStatusSala() == StatusSala.INICIADA) { 
             throw new IllegalStateException("A sala já foi iniciada.");
         }
-
-        // Força o carregamento dos participantes
         sala.getParticipantes().size();
-
-        // Altera status
         sala.setStatusSala(StatusSala.INICIADA);
         sala = repository.save(sala);
-
-        // Envia notificação via WebSocket
         simpMessagingTemplate.convertAndSend(
                 "/topic/sala/" + codigoSala,
                 new SalaMensagem("JOGO_INICIADO", sala.getFormulario().getIdFormulario(), sala.getIdSala(), codigoSala)
         );
-
         return sala;
     }
-    // =========================================================================
 
+    // =========================================================================
+    // ✅ MÉTODO ATUALIZADO: entrarNaSala
+    // =========================================================================
     @Transactional
     public String entrarNaSala(String codigoSala, Long idUsuario) {
         Sala sala = repository.findByCodigoSala(codigoSala)
@@ -175,11 +160,24 @@ public class SalaService {
         if (sala.getParticipantes().size() >= LIMITE_PARTICIPANTES) {
             sala.setStatusSala(StatusSala.CHEIA);
         }
-
         repository.save(sala);
+
+        // --- INÍCIO DA ATUALIZAÇÃO ---
+        try {
+            String destination = "/topic/sala/" + codigoSala;
+            simpMessagingTemplate.convertAndSend(destination, new UsuarioEntrouMensagem(usuario));
+            System.out.println("Notificação WS enviada: USUARIO_ENTROU para " + destination);
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar notificação WebSocket (entrarNaSala): " + e.getMessage());
+        }
+        // --- FIM DA ATUALIZAÇÃO ---
+
         return "Usuário " + usuario.getNome() + " entrou na sala: " + sala.getNomeSala();
     }
 
+    // =========================================================================
+    // ✅ MÉTODO ATUALIZADO: removerParticipante
+    // =========================================================================
     @Transactional
     public void removerParticipante(String codigoSala, Long idUsuario) {
         Sala sala = repository.findByCodigoSala(codigoSala)
@@ -197,10 +195,20 @@ public class SalaService {
             sala.getParticipantes().remove(su);
             if (sala.getStatusSala() == StatusSala.CHEIA) sala.setStatusSala(StatusSala.DISPONIVEL);
             repository.save(sala);
+
+            // --- INÍCIO DA ATUALIZAÇÃO ---
+            try {
+                String destination = "/topic/sala/" + codigoSala;
+                simpMessagingTemplate.convertAndSend(destination, new UsuarioSaiuMensagem(idUsuario));
+                System.out.println("Notificação WS enviada: USUARIO_SAIU para " + destination);
+            } catch (Exception e) {
+                System.err.println("Erro ao enviar notificação WebSocket (removerParticipante): " + e.getMessage());
+            }
+            // --- FIM DA ATUALIZAÇÃO ---
         });
     }
 
-    // --- copyDtoToEntity ---
+    // --- copyDtoToEntity (Sem Alterações) ---
     private void copyDtoToEntity(SalaDTO dto, Sala entity) {
         if (dto.getIdUsuario() == null) throw new IllegalArgumentException("ID do usuário criador não pode ser nulo.");
         entity.setIdUsuario(dto.getIdUsuario());
@@ -215,6 +223,7 @@ public class SalaService {
         } else throw new IllegalArgumentException("ID do formulário não pode ser nulo.");
     }
 
+    // --- gerarCodigoUnico (Sem Alterações) ---
     private String gerarCodigoUnico() {
         String codigo;
         do {
@@ -224,7 +233,10 @@ public class SalaService {
         return codigo;
     }
 
-    // --- Classe auxiliar para WebSocket ---
+
+    // --- Classes auxiliares para WebSocket ---
+
+    // Classe para JOGO_INICIADO (Mantida)
     public static class SalaMensagem {
         public String type;
         public Long idFormulario;
@@ -236,6 +248,49 @@ public class SalaService {
             this.idFormulario = idFormulario;
             this.idSala = idSala;
             this.codigoSala = codigoSala;
+        }
+    }
+
+    // --- NOVAS CLASSES ADICIONADAS ---
+
+    /**
+     * Payload para enviar os dados de um usuário.
+     */
+    public static class UsuarioPayload {
+        public long id;
+        public String nome;
+        public String avatar;
+
+        public UsuarioPayload(long id, String nome, String avatar) {
+            this.id = id;
+            this.nome = nome;
+            this.avatar = avatar; // Enviará null se o avatar for null
+        }
+    }
+
+    /**
+     * Mensagem para quando um usuário ENTRA.
+     */
+    public static class UsuarioEntrouMensagem {
+        public String type = "USUARIO_ENTROU";
+        public UsuarioPayload usuario;
+
+        public UsuarioEntrouMensagem(Usuario usuario) {
+            // <<< CORREÇÃO APLICADA AQUI >>>
+            // Envia 'null' para o avatar, já que o método getAvatar() não existe
+            this.usuario = new UsuarioPayload(usuario.getId(), usuario.getNome(), null);
+        }
+    }
+
+    /**
+     * Mensagem para quando um usuário SAI.
+     */
+    public static class UsuarioSaiuMensagem {
+        public String type = "USUARIO_SAIU";
+        public Long idUsuario; // Envia apenas o ID de quem saiu
+
+        public UsuarioSaiuMensagem(Long idUsuario) {
+            this.idUsuario = idUsuario;
         }
     }
 }
