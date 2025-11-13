@@ -113,4 +113,13 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+    @PutMapping("/{id}/avatar")
+    public ResponseEntity<Usuario> atualizarAvatar(@PathVariable Long id, @RequestBody UsuarioDTO usuarioDTO) {
+        try {
+            Usuario usuarioAtualizado = usuarioService.atualizarAvatar(id, usuarioDTO.getAvatar());
+            return ResponseEntity.ok(usuarioAtualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 }

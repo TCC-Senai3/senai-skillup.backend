@@ -64,7 +64,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/ranking/geral").permitAll()
 
 						// 2. Rotas Autenticadas (Qualquer ROLE)
-						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").authenticated()
+						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia", "usuarios/{id}/avatar").authenticated()
 						.requestMatchers(HttpMethod.GET,
 								"/formularios", "/salas/codigo/{codigo}", "/usuarios/me", "/usuarios/{id}"
 						).authenticated()
@@ -100,7 +100,7 @@ public class SecurityConfig {
 		// ✅ CORREÇÃO 1: Removida a barra final da URL do Vercel
 		configuration.setAllowedOrigins(Arrays.asList(
 				"http://localhost:3000", 
-				"https://senaiskillup.vercel.app" // Sem a barra final "/"
+				"https://senaiskillup.vercel.app" 
 		));
 		
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));

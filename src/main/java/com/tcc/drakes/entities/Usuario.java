@@ -32,6 +32,7 @@ public class Usuario implements UserDetails {
 	private long id;
 
 	private String nome;
+	private String avatar;
 	private String email;
 	private String senha;
 	private String biografia;
@@ -195,5 +196,11 @@ public class Usuario implements UserDetails {
 
     public void setSalasParticipadas(Set<SalaUsuario> salasParticipadas) {
         this.salasParticipadas = salasParticipadas;
+    }
+    public String getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }
