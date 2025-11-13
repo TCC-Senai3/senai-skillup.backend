@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder; // <-- ADICIONE ESTA IMPORTAÇÃO
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +26,7 @@ import com.tcc.drakes.services.UsuarioService;
 import jakarta.validation.Valid;
 
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") 
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
@@ -48,24 +48,6 @@ public class UsuarioController {
         }
     }
     
-    /*
-     * Endpoint de login alternativo para ambiente de desenvolvimento.
-     * Este método não gera um token JWT, apenas verifica se as credenciais são válidas.
-     * @param loginDTO Objeto com email e senha do usuário.
-     * @return Uma string indicando se o login foi "Login válido" ou "Credenciais inválidas".
-     
-    @PostMapping("/login")
-    public ResponseEntity<String> loginParaDesenvolvimento(@RequestBody LoginDTO loginDTO) {
-        try {
-            usuarioService.loginComJwt(loginDTO);
-            return ResponseEntity.ok("Login válido");
-        } catch (RuntimeException e) {
-            
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
-        }
-    }
-    */
-    
     @PutMapping("/{id}/biografia")
     public ResponseEntity<Usuario> atualizarBiografia(@PathVariable Long id, @RequestBody UsuarioDTO usuarioDTO) {
         try {
@@ -77,26 +59,25 @@ public class UsuarioController {
     }
     
     @GetMapping
-	public ResponseEntity<List<UsuarioListaDTO>> getListaDeUsuarios() {
-		List<UsuarioListaDTO> listaDeUsuarios = usuarioService.listarUsuariosSimplificado();
-		return ResponseEntity.ok(listaDeUsuarios);
-	}
+    public ResponseEntity<List<UsuarioPerfilDTO>> getListaDeUsuarios() {
+        List<UsuarioPerfilDTO> listaDePerfis = usuarioService.listarPerfisDeUsuarios(); 
+        return ResponseEntity.ok(listaDePerfis);
+    }
+    // =========================================================================
+
     
     @GetMapping("/{id}")
-	public ResponseEntity<UsuarioPerfilDTO> getUsuarioParaPerfil(@PathVariable Long id) {
-		try {
-			UsuarioPerfilDTO usuarioDTO = usuarioService.buscarPerfilPorId(id);
-			return ResponseEntity.ok(usuarioDTO);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
-	}
+    public ResponseEntity<UsuarioPerfilDTO> getUsuarioParaPerfil(@PathVariable Long id) {
+        try {
+            UsuarioPerfilDTO usuarioDTO = usuarioService.buscarPerfilPorId(id);
+            return ResponseEntity.ok(usuarioDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
     
-    // NOVO ENDPOINT ADICIONADO ABAIXO
     /**
      * Retorna o perfil do usuário atualmente autenticado (logado).
-     * O usuário é identificado através do token JWT enviado na requisição.
-     * @return ResponseEntity com o UsuarioPerfilDTO do usuário logado.
      */
     @GetMapping("/me")
     public ResponseEntity<UsuarioPerfilDTO> getMeuPerfil() {
@@ -113,4 +94,4 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-}
+}		

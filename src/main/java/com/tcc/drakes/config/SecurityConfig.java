@@ -46,15 +46,20 @@ public class SecurityConfig {
 			throws Exception {
 
 		return http
-				.cors(cors -> cors.configurationSource(corsConfigurationSource())) 
+				// Limpando caracteres invisíveis (espaços)
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(authorize -> authorize
 						
+						// ✅ 1. CORREÇÃO DO 'PREFLIGHT' (CORS)
+						// Permite todas as requisições OPTIONS (que o navegador envia)
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						
 						// Rotas Públicas/WebSocket (Permitidas primeiro)
 						.requestMatchers("/ws/**").permitAll() 
 						
-						// 1. Outras Rotas Públicas
+						// 2. Outras Rotas Públicas
 						.requestMatchers(
 								"/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/hello-world/**"
 						).permitAll()
@@ -63,7 +68,7 @@ public class SecurityConfig {
 						).permitAll()
 						.requestMatchers(HttpMethod.GET, "/ranking/geral").permitAll()
 
-						// 2. Rotas Autenticadas (Qualquer ROLE)
+						// 3. Rotas Autenticadas (Qualquer ROLE)
 						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").authenticated()
 						.requestMatchers(HttpMethod.GET,
 								"/formularios", "/salas/codigo/{codigo}", "/usuarios/me", "/usuarios/{id}"
@@ -77,12 +82,17 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.DELETE, "/salas/{codigoSala}/sair/{idUsuario}")
 						.authenticated()
 
-						// 3. Rotas Protegidas por Autoridade (Roles Específicas)
+						// 4. Rotas Protegidas por Autoridade (Roles Específicas)
 						.requestMatchers(HttpMethod.POST, "/formularios", "/formularios/completo", "/temas", "/perguntas", "/alternativas")
 						.hasAuthority("ROLE_CRIADOR_FORMULARIO")
+						
+						// ✅ 2. CORREÇÃO DA ROTA 'ROLES'
+						// Adiciona a regra explícita para o endpoint de 'roles'
+						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/roles").hasAuthority("ROLE_ADMIN")
+						
 						.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 
-						// 4. Qualquer outra requisição
+						// 5. Qualquer outra requisição
 						.anyRequest().authenticated()
 				)
 				.authenticationProvider(authenticationProvider)
@@ -92,12 +102,11 @@ public class SecurityConfig {
 	}
 
 	
-	// --- CORREÇÃO DE CORS PARA PRODUÇÃO/WEBSOCKET ---
+	// --- CORREÇÃO DE CORS (Limpando caracteres invisíveis) ---
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		
-		// ✅ CORREÇÃO 1: Removida a barra final da URL do Vercel
 		configuration.setAllowedOrigins(Arrays.asList(
 				"http://localhost:3000", 
 				"https://senaiskillup.vercel.app" // Sem a barra final "/"
@@ -105,13 +114,10 @@ public class SecurityConfig {
 		
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
 		
-		// ✅ CORREÇÃO 2: Voltado para "*" para garantir que nenhum header do SockJS seja bloqueado
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		
-		// Essencial para SockJS / credenciais
 		configuration.setAllowCredentials(true); 
 		
-		// Opcional, mas boa prática
 		configuration.setExposedHeaders(Arrays.asList("Authorization"));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
