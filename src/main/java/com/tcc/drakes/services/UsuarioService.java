@@ -28,7 +28,6 @@ import com.tcc.drakes.security.JwtUtil;
 @Service
 public class UsuarioService implements UserDetailsService {
 
-
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 
@@ -41,13 +40,11 @@ public class UsuarioService implements UserDetailsService {
 	@Autowired
 	private JwtUtil jwtUtil;
 
-	
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		return usuarioRepository.findByEmail(email)
 				.orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o e-mail: " + email));
 	}
-
 
 	public Usuario criarUsuario(UsuarioDTO usuarioDTO) {
 		if (usuarioRepository.findByEmail(usuarioDTO.getEmail()).isPresent()) {
@@ -56,6 +53,7 @@ public class UsuarioService implements UserDetailsService {
 
 		Usuario usuario = new Usuario();
 		usuario.setNome(usuarioDTO.getNome());
+		usuario.setAvatar(usuarioDTO.getAvatar());
 		usuario.setEmail(usuarioDTO.getEmail());
 		usuario.setBiografia(usuarioDTO.getBiografia());
 		usuario.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
@@ -89,6 +87,18 @@ public class UsuarioService implements UserDetailsService {
 		}
 	}
 
+	public Usuario atualizarAvatar(Long id, String novoAvatar) {
+		Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+
+		if (usuarioOptional.isPresent()) {
+			Usuario usuario = usuarioOptional.get();
+			usuario.setAvatar(novoAvatar);
+			return usuarioRepository.save(usuario);
+		} else {
+			throw new RuntimeException("Usuário não encontrado com o ID: " + id);
+		}
+	}
+
 	public Usuario atualizarRoles(Long usuarioId, List<Long> roleIds) {
 		Usuario usuario = usuarioRepository.findById(usuarioId)
 				.orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
@@ -99,22 +109,18 @@ public class UsuarioService implements UserDetailsService {
 
 		return usuarioRepository.save(usuario);
 	}
-	
+
 	public List<UsuarioListaDTO> listarUsuariosSimplificado() {
-		return usuarioRepository.findAll()
-				.stream()
-				.map(usuario -> new UsuarioListaDTO(
-						usuario.getId(),
-						usuario.getNome(),
-						usuario.getPontuacao()))
+		return usuarioRepository.findAll().stream()
+				.map(usuario -> new UsuarioListaDTO(usuario.getId(), usuario.getNome(), usuario.getPontuacao()))
 				.collect(Collectors.toList());
 	}
-	
+
 	public UsuarioPerfilDTO buscarPerfilPorId(Long id) {
 		Usuario usuario = usuarioRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
-		
-		return new UsuarioPerfilDTO(usuario); 
+
+		return new UsuarioPerfilDTO(usuario);
 	}
 
 	// =========================================================================

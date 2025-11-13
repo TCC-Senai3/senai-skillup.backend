@@ -11,6 +11,8 @@ public class UsuarioDTO {
 	@Size(min = 3, message = "O nome deve ter no mínimo 3 caracteres.")
 	private String nome;
 
+	private String avatar;
+
 	@NotBlank(message = "O e-mail é obrigatório.")
 	@Email(message = "O formato do e-mail é inválido.")
 	@DominioPermitido
@@ -62,5 +64,13 @@ public class UsuarioDTO {
 
 	public void setSenha(String senha) {
 		this.senha = senha;
+	}
+
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
 	}
 }

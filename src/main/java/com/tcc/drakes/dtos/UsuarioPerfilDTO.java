@@ -13,6 +13,7 @@ public class UsuarioPerfilDTO {
     private long id; // Campo para o ID do usuário
 
     private String nome;
+    private String avatar;
     private String biografia;
     private Long pontuacao;
     private boolean online;
@@ -27,6 +28,7 @@ public class UsuarioPerfilDTO {
         this.id = usuario.getId(); // Pega o ID da entidade
 
         this.nome = usuario.getNome();
+        this.avatar = usuario.getAvatar();
         this.biografia = usuario.getBiografia();
         this.pontuacao = usuario.getPontuacao();
 
@@ -96,5 +98,11 @@ public class UsuarioPerfilDTO {
 
     public void setRoles(Set<String> roles) {
         this.roles = roles;
+    }
+    public String getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

@@ -68,8 +68,10 @@ public class SecurityConfig {
 						).permitAll()
 						.requestMatchers(HttpMethod.GET, "/ranking/geral").permitAll()
 
-						// 3. Rotas Autenticadas (Qualquer ROLE)
-						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia").authenticated()
+
+						// 2. Rotas Autenticadas (Qualquer ROLE)
+						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia", "usuarios/{id}/avatar").authenticated()
+
 						.requestMatchers(HttpMethod.GET,
 								"/formularios", "/salas/codigo/{codigo}", "/usuarios/me", "/usuarios/{id}"
 						).authenticated()
@@ -109,7 +111,7 @@ public class SecurityConfig {
 		
 		configuration.setAllowedOrigins(Arrays.asList(
 				"http://localhost:3000", 
-				"https://senaiskillup.vercel.app" // Sem a barra final "/"
+				"https://senaiskillup.vercel.app" 
 		));
 		
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));

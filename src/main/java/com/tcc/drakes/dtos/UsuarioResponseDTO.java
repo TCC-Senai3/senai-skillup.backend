@@ -4,6 +4,7 @@ public class UsuarioResponseDTO {
 
     private long id; 
     private String nome;
+    private String avatar;
     private String email;
     private String biografia;
     private int pontuacao;
@@ -60,5 +61,11 @@ public class UsuarioResponseDTO {
 
     public void setOnline(boolean online) {
         this.online = online;
+    }
+    public String getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }
