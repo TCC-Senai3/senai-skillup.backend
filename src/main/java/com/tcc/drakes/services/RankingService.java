@@ -33,7 +33,8 @@ public class RankingService {
             .map(obj -> new RankingDTO(
                 (String) obj[0], // Nome
                 (Long) obj[1],   // Pontuação
-                (String) obj[2]  //
+                (String) obj[2],
+                (Long) obj[3]//
             ))
             .collect(Collectors.toList());
     }
@@ -44,7 +45,8 @@ public class RankingService {
             .map(obj -> new RankingDTO(
                 (String) obj[0], // Nome
                 (Long) obj[1],   // Pontuação
-                (String) obj[2]  
+                (String) obj[2],
+                (Long) obj[3]
             ))
             .collect(Collectors.toList());
     }

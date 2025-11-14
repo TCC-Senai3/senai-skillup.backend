@@ -21,6 +21,7 @@ public class Ranking {
     private Long pontuacao = 0L;
     
     private String avatar;
+    
 
     // 1. Construtor Vazio (Obrigatório JPA)
     public Ranking() {
