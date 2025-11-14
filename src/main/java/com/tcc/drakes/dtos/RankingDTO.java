@@ -3,15 +3,26 @@ package com.tcc.drakes.dtos;
 public class RankingDTO {
     private String nomeUsuario;
     private Long pontuacao;
+    private String avatar;
 
     public RankingDTO() {}
 
-    public RankingDTO(String nomeUsuario, Long pontuacao) {
+    public RankingDTO(String nomeUsuario, Long pontuacao, String avatar) {
         this.nomeUsuario = nomeUsuario;
         this.pontuacao = pontuacao;
+        this.avatar = avatar;
+        
     }
 
-    public String getNomeUsuario() {
+    public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public String getNomeUsuario() {
         return nomeUsuario;
     }
 

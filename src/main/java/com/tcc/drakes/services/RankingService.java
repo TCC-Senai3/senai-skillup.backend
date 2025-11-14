@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; 
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tcc.drakes.dtos.RankingDTO;
 import com.tcc.drakes.entities.Ranking;
@@ -30,38 +30,39 @@ public class RankingService {
     public List<RankingDTO> listarRankingGeral() {
         List<Object[]> resultados = rankingRepository.getRankingGeral();
         return resultados.stream()
-            .map(obj -> new RankingDTO((String) obj[0], (Long) obj[1]))
+            .map(obj -> new RankingDTO(
+                (String) obj[0], // Nome
+                (Long) obj[1],   // Pontuação
+                (String) obj[2]  //
+            ))
             .collect(Collectors.toList());
     }
 
     public List<RankingDTO> listarRankingPorSala(Long salaId) {
         List<Object[]> resultados = rankingRepository.getRankingPorSala(salaId);
         return resultados.stream()
-            .map(obj -> new RankingDTO((String) obj[0], (Long) obj[1]))
+            .map(obj -> new RankingDTO(
+                (String) obj[0], // Nome
+                (Long) obj[1],   // Pontuação
+                (String) obj[2]  
+            ))
             .collect(Collectors.toList());
     }
 
-    
     @Transactional 
     public void adicionarPontuacao(Long idUsuario, Long idSala, Long pontosParaAdicionar) {
-        
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         Sala sala = salaRepository.findById(idSala)
                 .orElseThrow(() -> new RuntimeException("Sala não encontrada"));
 
-        
         Ranking ranking = rankingRepository.findByUsuarioAndSala(usuario, sala);
         if (ranking == null) {
             ranking = new Ranking(usuario, sala);
         }
 
-        //ranking.incrementarPontuacao(); 
-       // usuario.incrementarPontuacao(); 
-        
         ranking.adicionarPontos(pontosParaAdicionar);
         usuario.adicionarPontos(pontosParaAdicionar);
-
         
         rankingRepository.save(ranking);
         usuarioRepository.save(usuario); 

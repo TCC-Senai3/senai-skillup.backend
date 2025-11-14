@@ -112,7 +112,7 @@ public class UsuarioService implements UserDetailsService {
 
 	public List<UsuarioListaDTO> listarUsuariosSimplificado() {
 		return usuarioRepository.findAll().stream()
-				.map(usuario -> new UsuarioListaDTO(usuario.getId(), usuario.getNome(), usuario.getPontuacao()))
+				.map(usuario -> new UsuarioListaDTO(usuario.getId(), usuario.getNome(), usuario.getPontuacao(), usuario.getAvatar()))
 				.collect(Collectors.toList());
 	}
 
@@ -127,16 +127,14 @@ public class UsuarioService implements UserDetailsService {
 	// ✅ NOVO MÉTODO ADICIONADO (PASSO 1)
 	// =========================================================================
 	/**
-	 * Busca TODOS os usuários e os converte para UsuarioPerfilDTO.
-	 * O UsuarioPerfilDTO já contém a lógica para calcular o status 'online'.
+	 * Busca TODOS os usuários e os converte para UsuarioPerfilDTO. O
+	 * UsuarioPerfilDTO já contém a lógica para calcular o status 'online'.
 	 */
 	@Transactional(readOnly = true) // Boa prática para métodos de leitura
 	public List<UsuarioPerfilDTO> listarPerfisDeUsuarios() {
 		List<Usuario> usuarios = usuarioRepository.findAll();
-		
+
 		// Itera e usa o construtor do DTO que já calcula o status online
-		return usuarios.stream()
-				.map(usuario -> new UsuarioPerfilDTO(usuario)) 
-				.collect(Collectors.toList());
+		return usuarios.stream().map(usuario -> new UsuarioPerfilDTO(usuario)).collect(Collectors.toList());
 	}
 }
