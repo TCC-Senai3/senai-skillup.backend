@@ -1,14 +1,27 @@
 package com.tcc.drakes.controllers;
 
-import com.tcc.drakes.dtos.SalaDTO;
-import com.tcc.drakes.services.SalaService;
-import jakarta.persistence.EntityNotFoundException; // <<< Adicionar import
+import java.security.Principal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;           // <<< Adicionar import
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;     // <<< Garante todos os imports de anotações
+import org.springframework.security.access.prepost.PreAuthorize;
+// <<< Garante todos os imports de anotações
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.tcc.drakes.dtos.SalaDTO;
+import com.tcc.drakes.services.SalaService;
+
+import jakarta.persistence.EntityNotFoundException; // <<< Adicionar import
 
 @RestController
 @CrossOrigin(origins = "*") // Permite acesso de qualquer origem (ajuste se necessário para produção)
@@ -133,6 +146,29 @@ public class SalaController {
         }
     }
     
-    
+    @DeleteMapping("/{codigoSala}/expulsar/{idUsuarioExpulso}")
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<Void> expulsarUsuario(
+            @PathVariable String codigoSala,
+            @PathVariable Long idUsuarioExpulso,
+            Principal principal) {
+        try {
+            // O service fará a checagem se o usuário logado (principal) é o dono
+            salaService.expulsarUsuario(codigoSala, idUsuarioExpulso, principal.getName());
+            
+            // Se a expulsão for bem-sucedida, retorna 204
+            return ResponseEntity.noContent().build();
+            
+        } catch (EntityNotFoundException e) {
+            // Sala ou Usuário não encontrado
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalAccessException e) {
+            // Lançado pelo Service se o usuário logado NÃO for o dono ou tentar se expulsar
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Retorna 403 Forbidden
+        } catch (Exception e) {
+            // Outros erros inesperados
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }

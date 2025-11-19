@@ -1,62 +1,64 @@
 package com.tcc.drakes.services;
 
-import com.tcc.drakes.dtos.SalaDTO;
-import com.tcc.drakes.entities.Formulario;
-import com.tcc.drakes.entities.Sala;
-import com.tcc.drakes.entities.SalaUsuario;
-import com.tcc.drakes.entities.StatusSala;
-import com.tcc.drakes.entities.Usuario;
-import com.tcc.drakes.repositories.FormularioRepository;
-import com.tcc.drakes.repositories.SalaRepository;
-import com.tcc.drakes.repositories.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-
-import java.time.LocalDate;
+import java.time.LocalDate; 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.tcc.drakes.dtos.SalaDTO;
+import com.tcc.drakes.entities.Formulario;
+import com.tcc.drakes.entities.Sala;
+import com.tcc.drakes.entities.SalaUsuario; 
+import com.tcc.drakes.entities.StatusSala; 
+import com.tcc.drakes.entities.Usuario;
+import com.tcc.drakes.repositories.FormularioRepository;
+import com.tcc.drakes.repositories.SalaRepository;
+import com.tcc.drakes.repositories.UsuarioRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class SalaService {
 
-    private static final int LIMITE_PARTICIPANTES = 50;
+	private static final int LIMITE_PARTICIPANTES = 50;
 
-    @Autowired
-    private SalaRepository repository;
+	@Autowired
+	private SalaRepository repository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private FormularioRepository formularioRepository;
+	@Autowired
+	private FormularioRepository formularioRepository;
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate; // Para enviar mensagens via WebSocket
+	@Autowired
+	private SimpMessagingTemplate simpMessagingTemplate; 
 
-    // --- Métodos Existentes (Sem Alterações) ---
-    public List<SalaDTO> findAll() {
+
+	public List<SalaDTO> findAll() {
         List<Sala> salas = repository.findAll();
         return salas.stream().map(SalaDTO::new).collect(Collectors.toList());
     }
 
-    public SalaDTO findById(Long id) {
+	public SalaDTO findById(Long id) {
         Sala sala = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Sala com ID " + id + " não encontrada"));
         return new SalaDTO(sala);
     }
 
-    public SalaDTO findByCodigo(String codigo) {
+	public SalaDTO findByCodigo(String codigo) {
         Sala sala = repository.findByCodigoSala(codigo)
                 .orElseThrow(() -> new EntityNotFoundException("Sala com o código '" + codigo + "' não encontrada"));
         return new SalaDTO(sala);
     }
 
-    @Transactional
+	@Transactional
     public SalaDTO insert(SalaDTO dto) {
         Sala sala = new Sala();
         copyDtoToEntity(dto, sala);
@@ -66,14 +68,14 @@ public class SalaService {
         if (sala.getFormulario() == null) {
             throw new RuntimeException("ID do formulário é obrigatório.");
         }
-        sala.setDataCriacao(LocalDate.now());
+        sala.setDataCriacao(LocalDate.now()); // LocalDate requer import
         sala.setCodigoSala(gerarCodigoUnico());
-        sala.setStatusSala(StatusSala.DISPONIVEL);
+        sala.setStatusSala(StatusSala.DISPONIVEL); // StatusSala requer import
         sala = repository.save(sala);
         return new SalaDTO(sala);
     }
 
-    @Transactional
+	@Transactional
     public SalaDTO update(Long id, SalaDTO dto) {
         Sala sala = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Sala com ID " + id + " não encontrada"));
@@ -84,7 +86,7 @@ public class SalaService {
         return new SalaDTO(sala);
     }
 
-    @Transactional
+	@Transactional
     public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("Sala com ID " + id + " não encontrada para deletar.");
@@ -92,34 +94,50 @@ public class SalaService {
         repository.deleteById(id);
     }
 
-    public Optional<Sala> buscarSalaPorId(Long idSala) {
+	public Optional<Sala> buscarSalaPorId(Long idSala) {
         return repository.findById(idSala);
     }
 
-    @Transactional
+
+
+	@Transactional
     public SalaDTO fecharSala(Long id) {
         Sala sala = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Sala com ID " + id + " não encontrada"));
+
         if (sala.getStatusSala() == StatusSala.FECHADA) {
             return new SalaDTO(sala);
         }
+
+        // Altera status para FECHADA
         sala.setStatusSala(StatusSala.FECHADA);
         sala = repository.save(sala);
+
+        try {
+            String destination = "/topic/sala/" + sala.getCodigoSala();
+            simpMessagingTemplate.convertAndSend(destination, new SalaFechadaMensagem(sala.getCodigoSala()));
+            System.out.println("Notificação WS enviada: SALA_FECHADA para " + destination);
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar notificação WebSocket (fecharSala): " + e.getMessage());
+        }
+
         return new SalaDTO(sala);
     }
 
-    // Método 'iniciarSala' (Sem Alterações)
-    @Transactional
+	 // Método 'iniciarSala' (Sem Alterações)
+
+	@Transactional
     public Sala iniciarSala(String codigoSala, Long idUsuario) {
         Sala sala = repository.findByCodigoSala(codigoSala)
                 .orElseThrow(() -> new EntityNotFoundException("Sala com o código '" + codigoSala + "' não encontrada"));
         if (!sala.getIdUsuario().equals(idUsuario)) {
             throw new IllegalStateException("Apenas o dono da sala pode iniciar o jogo.");
         }
-        if (sala.getStatusSala() == StatusSala.INICIADA) { 
+        if (sala.getStatusSala() == StatusSala.INICIADA) {
             throw new IllegalStateException("A sala já foi iniciada.");
         }
-        sala.getParticipantes().size();
+        // Aqui precisamos garantir que a coleção 'participantes' foi inicializada se for Lazy
+        // sala.getParticipantes().size(); // Esta linha pode causar LazyInitializationException se não houver @Transactional
         sala.setStatusSala(StatusSala.INICIADA);
         sala = repository.save(sala);
         simpMessagingTemplate.convertAndSend(
@@ -129,10 +147,8 @@ public class SalaService {
         return sala;
     }
 
-    // =========================================================================
-    // ✅ MÉTODO ATUALIZADO: entrarNaSala
-    // =========================================================================
-    @Transactional
+	
+	@Transactional
     public String entrarNaSala(String codigoSala, Long idUsuario) {
         Sala sala = repository.findByCodigoSala(codigoSala)
                 .orElseThrow(() -> new EntityNotFoundException("Sala com o código '" + codigoSala + "' não encontrada"));
@@ -154,7 +170,7 @@ public class SalaService {
             throw new IllegalStateException("A sala está cheia.");
         }
 
-        SalaUsuario novaAssociacao = new SalaUsuario(sala, usuario);
+        SalaUsuario novaAssociacao = new SalaUsuario(sala, usuario); // SalaUsuario requer import
         sala.getParticipantes().add(novaAssociacao);
 
         if (sala.getParticipantes().size() >= LIMITE_PARTICIPANTES) {
@@ -162,7 +178,7 @@ public class SalaService {
         }
         repository.save(sala);
 
-        // --- INÍCIO DA ATUALIZAÇÃO ---
+        // Envio de notificação WS (USUARIO_ENTROU)
         try {
             String destination = "/topic/sala/" + codigoSala;
             simpMessagingTemplate.convertAndSend(destination, new UsuarioEntrouMensagem(usuario));
@@ -170,15 +186,12 @@ public class SalaService {
         } catch (Exception e) {
             System.err.println("Erro ao enviar notificação WebSocket (entrarNaSala): " + e.getMessage());
         }
-        // --- FIM DA ATUALIZAÇÃO ---
 
         return "Usuário " + usuario.getNome() + " entrou na sala: " + sala.getNomeSala();
     }
 
-    // =========================================================================
-    // ✅ MÉTODO ATUALIZADO: removerParticipante
-    // =========================================================================
-    @Transactional
+
+	@Transactional
     public void removerParticipante(String codigoSala, Long idUsuario) {
         Sala sala = repository.findByCodigoSala(codigoSala)
                 .orElseThrow(() -> new EntityNotFoundException("Sala com código " + codigoSala + " não encontrada."));
@@ -192,11 +205,13 @@ public class SalaService {
                 .findFirst();
 
         associacaoParaRemover.ifPresent(su -> {
+            Usuario usuarioExpulso = su.getUsuario(); // Pega o objeto Usuario para a notificação privada
+
             sala.getParticipantes().remove(su);
             if (sala.getStatusSala() == StatusSala.CHEIA) sala.setStatusSala(StatusSala.DISPONIVEL);
             repository.save(sala);
 
-            // --- INÍCIO DA ATUALIZAÇÃO ---
+            // 1. Envia notificação pública (USUARIO_SAIU) para os restantes
             try {
                 String destination = "/topic/sala/" + codigoSala;
                 simpMessagingTemplate.convertAndSend(destination, new UsuarioSaiuMensagem(idUsuario));
@@ -204,12 +219,46 @@ public class SalaService {
             } catch (Exception e) {
                 System.err.println("Erro ao enviar notificação WebSocket (removerParticipante): " + e.getMessage());
             }
-            // --- FIM DA ATUALIZAÇÃO ---
+
+            // 2. Envia notificação PRIVADA (EXPULSO) APENAS para o usuário removido
+            if (usuarioExpulso != null && usuarioExpulso.getEmail() != null) {
+                try {
+                    // Destino: /user/{username}/queue/expulso
+                    simpMessagingTemplate.convertAndSendToUser(
+                        usuarioExpulso.getEmail(),
+                        "/queue/expulso", // Canal privado que o Front-end deve assinar
+                        new ExpulsoMensagem(sala.getIdSala())
+                    );
+                    System.out.println("Notificação WS PRIVADA enviada: EXPULSO para " + usuarioExpulso.getEmail());
+                } catch (Exception e) {
+                    System.err.println("Erro ao enviar notificação WebSocket PRIVADA (EXPULSO): " + e.getMessage());
+                }
+            }
         });
     }
 
-    // --- copyDtoToEntity (Sem Alterações) ---
-    private void copyDtoToEntity(SalaDTO dto, Sala entity) {
+	@Transactional
+    public void expulsarUsuario(String codigoSala, Long idUsuarioExpulso, String usernameDono)
+            throws IllegalAccessException {
+
+        Sala sala = repository.findByCodigoSala(codigoSala)
+                .orElseThrow(() -> new EntityNotFoundException("Sala com código " + codigoSala + " não encontrada."));
+
+        Usuario dono = usuarioRepository.findByEmail(usernameDono)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário dono logado não encontrado."));
+
+        if (!sala.getIdUsuario().equals(dono.getId())) {
+            throw new IllegalAccessException("Apenas o dono da sala pode expulsar participantes.");
+        }
+
+        if (sala.getIdUsuario().equals(idUsuarioExpulso)) {
+            throw new IllegalAccessException("O dono da sala não pode ser expulso.");
+        }
+        removerParticipante(codigoSala, idUsuarioExpulso);
+    }
+
+
+	private void copyDtoToEntity(SalaDTO dto, Sala entity) {
         if (dto.getIdUsuario() == null) throw new IllegalArgumentException("ID do usuário criador não pode ser nulo.");
         entity.setIdUsuario(dto.getIdUsuario());
         entity.setIdTema(dto.getIdTema());
@@ -223,8 +272,9 @@ public class SalaService {
         } else throw new IllegalArgumentException("ID do formulário não pode ser nulo.");
     }
 
-    // --- gerarCodigoUnico (Sem Alterações) ---
-    private String gerarCodigoUnico() {
+	 // --- gerarCodigoUnico (Mantido) ---
+
+	private String gerarCodigoUnico() {
         String codigo;
         do {
             int numeroAleatorio = ThreadLocalRandom.current().nextInt(100000, 1000000);
@@ -234,63 +284,83 @@ public class SalaService {
     }
 
 
-    // --- Classes auxiliares para WebSocket ---
 
-    // Classe para JOGO_INICIADO (Mantida)
-    public static class SalaMensagem {
-        public String type;
-        public Long idFormulario;
-        public Long idSala;
-        public String codigoSala;
 
-        public SalaMensagem(String type, Long idFormulario, Long idSala, String codigoSala) {
+	public static class SalaMensagem {
+
+		public String type;
+		public Long idFormulario;
+		public Long idSala;
+		public String codigoSala;
+
+		public SalaMensagem(String type, Long idFormulario, Long idSala, String codigoSala) {
             this.type = type;
             this.idFormulario = idFormulario;
             this.idSala = idSala;
             this.codigoSala = codigoSala;
         }
-    }
+	}
 
-    // --- NOVAS CLASSES ADICIONADAS ---
+	 // Payload para enviar os dados de um usuário (Mantido)
 
-    /**
-     * Payload para enviar os dados de um usuário.
-     */
-    public static class UsuarioPayload {
-        public long id;
-        public String nome;
-        public String avatar;
+	public static class UsuarioPayload {
 
-        public UsuarioPayload(long id, String nome, String avatar) {
+		public long id;
+		public String nome;
+		public String avatar;
+
+		public UsuarioPayload(long id, String nome, String avatar) {
             this.id = id;
             this.nome = nome;
-            this.avatar = avatar; // Enviará null se o avatar for null
+            this.avatar = avatar;
         }
-    }
+	}
 
-    /**
-     * Mensagem para quando um usuário ENTRA.
-     */
-    public static class UsuarioEntrouMensagem {
-        public String type = "USUARIO_ENTROU";
-        public UsuarioPayload usuario;
+	 // Mensagem para quando um usuário ENTRA (Mantida)
 
-        public UsuarioEntrouMensagem(Usuario usuario) {
-            // <<< CORREÇÃO APLICADA AQUI >>>
-            // Envia 'null' para o avatar, já que o método getAvatar() não existe
-            this.usuario = new UsuarioPayload(usuario.getId(), usuario.getNome(), null);
+	public static class UsuarioEntrouMensagem {
+
+		public String type = "USUARIO_ENTROU";
+		public UsuarioPayload usuario;
+
+		public UsuarioEntrouMensagem(Usuario usuario) {
+            // Assumindo que você tem um método getAvatar() ou que o campo 'avatar' seja acessível na entidade Usuario
+            this.usuario = new UsuarioPayload(usuario.getId(), usuario.getNome(), null); // Ajuste o 'null' se tiver o avatar
         }
-    }
+	}
 
-    /**
-     * Mensagem para quando um usuário SAI.
-     */
-    public static class UsuarioSaiuMensagem {
-        public String type = "USUARIO_SAIU";
-        public Long idUsuario; // Envia apenas o ID de quem saiu
+	 // Mensagem para quando um usuário SAI (Mantida)
 
-        public UsuarioSaiuMensagem(Long idUsuario) {
+	public static class UsuarioSaiuMensagem {
+
+		public String type = "USUARIO_SAIU";
+		public Long idUsuario;
+
+		public UsuarioSaiuMensagem(Long idUsuario) {
             this.idUsuario = idUsuario;
         }
-    }
+	}
+
+
+	public static class ExpulsoMensagem {
+
+		public String type = "EXPULSO";
+		public Long idSala;
+
+		public ExpulsoMensagem(Long idSala) {
+            this.idSala = idSala;
+        }
+	}
+
+
+	public static class SalaFechadaMensagem {
+
+		public String type = "SALA_FECHADA";
+		public String codigoSala;
+
+		public SalaFechadaMensagem(String codigoSala) {
+            this.codigoSala = codigoSala;
+        }
+	}
+
 }
