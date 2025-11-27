@@ -111,7 +111,8 @@ public class SecurityConfig {
 		
 		configuration.setAllowedOrigins(Arrays.asList(
 				"http://localhost:3000", 
-				"https://senaiskillup.vercel.app" 
+				"https://senaiskillup.vercel.app", 
+				"http://localhost:8081"
 		));
 		
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
