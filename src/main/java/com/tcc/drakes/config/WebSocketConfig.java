@@ -26,7 +26,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
 
         // 🔵 1) ENDPOINT WEBSOCKET NATIVO (necessário para React Native)
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/ws-native")
             .setAllowedOrigins(
                 "http://localhost:3000",
                 "https://tccdrakes.azurewebsites.net",
