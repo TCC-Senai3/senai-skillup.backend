@@ -22,125 +22,126 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	@Bean
-	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter();
-	}
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
 
-	@Bean
-	public AtualizarAtividadeUsuarioFilter atualizarAtividadeUsuarioFilter() {
-		return new AtualizarAtividadeUsuarioFilter();
-	}
+    @Bean
+    public AtualizarAtividadeUsuarioFilter atualizarAtividadeUsuarioFilter() {
+        return new AtualizarAtividadeUsuarioFilter();
+    }
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider,
-			JwtAuthenticationFilter jwtAuthFilter, AtualizarAtividadeUsuarioFilter atividadeUsuarioFilter)
-			throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider,
+                                                   JwtAuthenticationFilter jwtAuthFilter, AtualizarAtividadeUsuarioFilter atividadeUsuarioFilter)
+            throws Exception {
 
-		return http
-				// Limpando caracteres invisíveis (espaços)
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.csrf(csrf -> csrf.disable())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(authorize -> authorize
-						
-						// ✅ 1. CORREÇÃO DO 'PREFLIGHT' (CORS)
-						// Permite todas as requisições OPTIONS (que o navegador envia)
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						
-						// Rotas Públicas/WebSocket (Permitidas primeiro)
-						.requestMatchers("/ws/**").permitAll() 
-						
-						// 2. Outras Rotas Públicas
-						.requestMatchers(
-								"/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/hello-world/**"
-						).permitAll()
-						.requestMatchers(HttpMethod.POST,
-								"/usuarios/cadastro", "/usuarios/login", "/senha/esqueceu", "/senha/reset"
-						).permitAll()
-						.requestMatchers(HttpMethod.GET, "/ranking/geral").permitAll()
+        return http
+                // Configuração de CORS (Usa o método corsConfigurationSource definido abaixo)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                
+                // Desabilita CSRF (necessário para APIs Stateless)
+                .csrf(csrf -> csrf.disable())
+                
+                // Define a sessão como Stateless (sem estado)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                
+                .authorizeHttpRequests(authorize -> authorize
 
+                        // ✅ 1. CORREÇÃO DE PREFLIGHT E ERROS
+                        // Permite requisições OPTIONS (Necessário para o navegador validar o CORS)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Libera o endpoint de erro do Spring para ver as mensagens reais (evita 403 em erros internos)
+                        .requestMatchers("/error").permitAll()
 
-						// 2. Rotas Autenticadas (Qualquer ROLE)
-						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia", "usuarios/{id}/avatar").authenticated()
+                        // ✅ 2. CORREÇÃO DO WEBSOCKET
+                        // Adicionado /ws-native/** (conexão do mobile) e /ws/** (genérico)
+                        .requestMatchers("/ws/**", "/ws-native/**").permitAll()
 
-						.requestMatchers(HttpMethod.GET,
-								"/formularios", "/salas/codigo/{codigo}", "/usuarios/me", "/usuarios/{id}"
-						).authenticated()
-						.requestMatchers(HttpMethod.POST,
-								"/respostas", "/salas", "/salas/{codigoSala}/entrar/{idUsuario}" 
-						).authenticated()
-						.requestMatchers(HttpMethod.PUT,
-								"/salas/{id}/fechar", "/usuarios/{id}"
-						).authenticated()
-						.requestMatchers(HttpMethod.DELETE, "/salas/{codigoSala}/sair/{idUsuario}")
-						.authenticated()
+                        // 3. Rotas Públicas (Documentação e Utilitários)
+                        .requestMatchers(
+                                "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/hello-world/**"
+                        ).permitAll()
 
-						// 4. Rotas Protegidas por Autoridade (Roles Específicas)
-						.requestMatchers(HttpMethod.POST, "/formularios", "/formularios/completo", "/temas", "/perguntas", "/alternativas")
-						.hasAuthority("ROLE_CRIADOR_FORMULARIO")
-						
-						// ✅ 2. CORREÇÃO DA ROTA 'ROLES'
-						// Adiciona a regra explícita para o endpoint de 'roles'
-						.requestMatchers(HttpMethod.PUT, "/usuarios/{id}/roles").hasAuthority("ROLE_ADMIN")
-						
-						.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        // 4. Rotas de Autenticação Públicas
+                        .requestMatchers(HttpMethod.POST,
+                                "/usuarios/cadastro", "/usuarios/login", "/senha/esqueceu", "/senha/reset"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ranking/geral").permitAll()
 
-						// 5. Qualquer outra requisição
-						.anyRequest().authenticated()
-				)
-				.authenticationProvider(authenticationProvider)
-				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-				.addFilterAfter(atividadeUsuarioFilter, JwtAuthenticationFilter.class)
-				.build();
-	}
+                        // 5. Rotas Autenticadas Gerais (Qualquer usuário logado)
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/biografia", "usuarios/{id}/avatar").authenticated()
+                        .requestMatchers(HttpMethod.GET,
+                                "/formularios", "/salas/codigo/{codigo}", "/usuarios/me", "/usuarios/{id}"
+                        ).authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/respostas", "/salas", "/salas/{codigoSala}/entrar/{idUsuario}"
+                        ).authenticated()
+                        .requestMatchers(HttpMethod.PUT,
+                                "/salas/{id}/fechar", "/usuarios/{id}"
+                        ).authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/salas/{codigoSala}/sair/{idUsuario}")
+                        .authenticated()
 
-	
-	// --- CORREÇÃO DE CORS (Limpando caracteres invisíveis) ---
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		
-		configuration.setAllowedOrigins(Arrays.asList(
-				"http://localhost:3000", 
-				"https://senaiskillup.vercel.app", 
-				"http://localhost:8081"
-		));
-		
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
-		
-		configuration.setAllowedHeaders(Arrays.asList("*"));
-		
-		configuration.setAllowCredentials(true); 
-		
-		configuration.setExposedHeaders(Arrays.asList("Authorization"));
+                        // 6. Rotas com Permissões Específicas (Roles)
+                        .requestMatchers(HttpMethod.POST, "/formularios", "/formularios/completo", "/temas", "/perguntas", "/alternativas")
+                        .hasAuthority("ROLE_CRIADOR_FORMULARIO")
 
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
-	// --- FIM DA CORREÇÃO ---
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id}/roles").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 
-	// AuthenticationProvider (Mantido)
-	@Bean
-	public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-		authProvider.setUserDetailsService(userDetailsService);
-		authProvider.setPasswordEncoder(passwordEncoder);
-		return authProvider;
-	}
+                        // 7. Bloqueia qualquer outra rota não listada acima
+                        .anyRequest().authenticated()
+                )
+                .authenticationProvider(authenticationProvider)
+                // Filtro de JWT antes do filtro padrão de usuário/senha
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                // Filtro de atividade depois do JWT
+                .addFilterAfter(atividadeUsuarioFilter, JwtAuthenticationFilter.class)
+                .build();
+    }
 
-	// AuthenticationManager (Mantido)
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-		return config.getAuthenticationManager();
-	}
+    // ✅ AQUI ESTÁ A MÁGICA PARA O WEB FUNCIONAR
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // ⚠️ MUDANÇA CRUCIAL: Usar setAllowedOriginPatterns("*") ao invés de setAllowedOrigins
+        // Isso permite qualquer origem (localhost, vercel, IP de rede) e AINDA permite credenciais.
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+        
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // Permite envio de cookies e headers de autenticação
+        configuration.setAllowCredentials(true); 
+        
+        // Expondo headers importantes para o Frontend ler
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Total-Count"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 }
