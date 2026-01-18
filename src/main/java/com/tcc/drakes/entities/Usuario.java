@@ -1,34 +1,113 @@
 package com.tcc.drakes.entities;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_usuario")
-public class Usuario {
+public class Usuario implements UserDetails {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
+
 	private String nome;
+	private String avatar;
 	private String email;
 	private String senha;
-//	private TipoUsuario tipoUsuario;
-	
-	public Usuario() {}
+	private String biografia;
 
-	public Usuario(long id, String nome, String email, String senha) {
+	private Long pontuacao = 0L;
+
+	@Column(name = "data_ultima_atividade")
+	private LocalDateTime dataUltimaAtividade;
+
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "usuario_role", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
+
+	@OneToMany(mappedBy = "usuario")
+	private List<Resposta> respostas;
+	
+	// RELACIONAMENTO ADICIONADO PARA CONSISTÊNCIA
+	@OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SalaUsuario> salasParticipadas = new HashSet<>();
+
+	public Usuario() {
+	}
+
+	public Usuario(long id, String nome, String email, String senha, String biografia, Long pontuacao) {
 		this.id = id;
 		this.nome = nome;
 		this.email = email;
 		this.senha = senha;
-		//this.tipoUsuario = tipoUsuario;
+		this.biografia = biografia;
+		this.pontuacao = pontuacao;
 	}
 
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		for (Role role : this.roles) {
+			authorities.add(new SimpleGrantedAuthority(role.getNome()));
+			for (Permissao permissao : role.getPermissoes()) {
+				authorities.add(new SimpleGrantedAuthority(permissao.getNome()));
+			}
+		}
+		return authorities;
+	}
+
+	@Override
+	public String getPassword() {
+		return this.senha;
+	}
+
+	@Override
+	public String getUsername() {
+		return this.email;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+	// Getters e Setters
 	public long getId() {
 		return id;
 	}
@@ -61,17 +140,67 @@ public class Usuario {
 		this.senha = senha;
 	}
 
-//	public TipoUsuario getTipoUsuario() {
-//		return tipoUsuario;
-//	}
-//
-//	public void setTipoUsuario(TipoUsuario tipoUsuario) {
-	//	this.tipoUsuario = tipoUsuario;
-//	}
-	
-	
-	
-	
-	
+	public String getBiografia() {
+		return biografia;
+	}
 
+	public void setBiografia(String biografia) {
+		this.biografia = biografia;
+	}
+
+	public Long getPontuacao() {
+		return pontuacao;
+	}
+
+	public void setPontuacao(Long pontuacao) {
+		this.pontuacao = pontuacao;
+	}
+
+	public List<Resposta> getRespostas() {
+		return respostas;
+	}
+
+	public void setRespostas(List<Resposta> respostas) {
+		this.respostas = respostas;
+	}
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+	
+	public void adicionarPontos(Long pontos) {
+	    if (this.pontuacao == null) {
+	        this.pontuacao = 0L;
+	    }
+	    if (pontos != null && pontos > 0) {
+	        this.pontuacao += pontos;
+	    }
+	}
+
+	public LocalDateTime getDataUltimaAtividade() {
+		return dataUltimaAtividade;
+	}
+
+	public void setDataUltimaAtividade(LocalDateTime dataUltimaAtividade) {
+		this.dataUltimaAtividade = dataUltimaAtividade;
+	}
+	
+	// GETTER E SETTER PARA O NOVO RELACIONAMENTO
+	public Set<SalaUsuario> getSalasParticipadas() {
+        return salasParticipadas;
+    }
+
+    public void setSalasParticipadas(Set<SalaUsuario> salasParticipadas) {
+        this.salasParticipadas = salasParticipadas;
+    }
+    public String getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 }
